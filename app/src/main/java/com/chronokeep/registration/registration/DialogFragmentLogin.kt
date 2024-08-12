@@ -1,4 +1,4 @@
-package com.chronokeep.registration.webregistration
+package com.chronokeep.registration.registration
 
 import android.os.Bundle
 import android.util.Log
@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -17,14 +16,8 @@ import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
 import com.chronokeep.registration.objects.database.Database
-import com.chronokeep.registration.objects.database.DatabaseParticipant
-import com.chronokeep.registration.objects.database.DatabaseSetting
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 class DialogFragmentLogin : DialogFragment(), OnClickListener {
     private val tag: String = "Chrono.Login"

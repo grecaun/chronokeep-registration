@@ -11,9 +11,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
-import com.chronokeep.registration.objects.registration.Participant
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 
-class ListAdapterRegistrationParticipants(var objects: MutableList<Participant>, private val frag: Fragment) :
+class ListAdapterRegistrationParticipants(var objects: MutableList<DatabaseParticipant>, private val frag: Fragment) :
     RecyclerView.Adapter<ListAdapterRegistrationParticipants.ParticipantView>() {
     private val tag: String = "Chrono.PartLA"
 

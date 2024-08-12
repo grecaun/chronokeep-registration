@@ -10,10 +10,7 @@ import androidx.room.Update
 @Dao
 interface DatabaseParticipantDao {
     @Query("SELECT * FROM participant")
-    fun getAllParticipants(): List<DatabaseParticipant>
-
-    @Query("SELECT * FROM participant WHERE event_slug = :slug AND event_year = :year")
-    fun getEventParticipants(slug: String, year: String): List<DatabaseParticipant>
+    fun getParticipants(): List<DatabaseParticipant>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addParticipants(parts: List<DatabaseParticipant>)

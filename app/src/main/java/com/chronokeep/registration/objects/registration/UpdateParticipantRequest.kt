@@ -1,5 +1,6 @@
 package com.chronokeep.registration.objects.registration
 
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -7,7 +8,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 class UpdateParticipantRequest (
     val command: String = RequestCommands.UPDATE_PARTICIPANT,
-    val participant: Participant,
+    val participant: DatabaseParticipant,
 ) {
     fun encode(): String {
         val format = Json { encodeDefaults = true }

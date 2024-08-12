@@ -20,7 +20,7 @@ import com.chronokeep.registration.network.ServerFinder
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 import com.chronokeep.registration.wait.FragmentWait
-import com.chronokeep.registration.webregistration.DialogFragmentLogin
+import com.chronokeep.registration.registration.DialogFragmentLogin
 import java.lang.ref.WeakReference
 
 class FragmentServerList : Fragment(), View.OnClickListener {

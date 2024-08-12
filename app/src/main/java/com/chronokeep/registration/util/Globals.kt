@@ -6,12 +6,10 @@ import com.chronokeep.registration.network.Connection
 import com.chronokeep.registration.objects.ServerInformation
 import com.chronokeep.registration.objects.database.Database
 import com.chronokeep.registration.objects.registration.RegistrationError
-import com.chronokeep.registration.objects.registration.Participant
 
 object Globals {
     class RegistrationInfo {
         var error = RegistrationError.NONE
-        val participants = ArrayList<Participant>()
         val distances = ArrayList<String>()
     }
 
@@ -43,21 +41,6 @@ object Globals {
     }
 
     // Registration information getters and setters
-    fun setRegistrationParticipants(parts: ArrayList<Participant>) {
-        synchronized(registration.participants) {
-            registration.participants.clear()
-            registration.participants.addAll(parts)
-        }
-    }
-
-    fun getRegistrationParticipants(): ArrayList<Participant> {
-        val output: ArrayList<Participant>
-        synchronized(registration.participants) {
-            output = ArrayList(registration.participants)
-        }
-        return output
-    }
-
     fun setRegistrationDistances(distances: ArrayList<String>) {
         synchronized(registration.distances) {
             registration.distances.clear()

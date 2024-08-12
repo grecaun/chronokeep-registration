@@ -1,6 +1,6 @@
 package com.chronokeep.registration.objects.responses
 
-import com.chronokeep.registration.objects.registration.Participant
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -8,6 +8,6 @@ import kotlinx.serialization.Serializable
 @SerialName("registration_participants")
 class ParticipantsResponse (
     override val command: String = "registration_participants",
-    val participants: ArrayList<Participant>,
+    val participants: ArrayList<DatabaseParticipant>,
     val distances: ArrayList<String>,
 ) : Response()

@@ -24,15 +24,15 @@ import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.network.ConnectionHandler
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.AddParticipantRequest
-import com.chronokeep.registration.objects.registration.Participant
 import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
 import com.chronokeep.registration.util.Globals
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class FragmentEditParticipant(
-    private var participant: Participant
+    private var participant: DatabaseParticipant
 ) :
     Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
     private val tag: String = "Chrono.EditPartDia"
@@ -44,8 +44,6 @@ class FragmentEditParticipant(
     private var gender: Spinner? = null
     private var otherGender: EditText? = null
     private var birthdate: EditText? = null
-    private var mobile: EditText? = null
-    private var smsEnabled: SwitchCompat? = null
     private var distanceAdapter: ArrayAdapter<String>? = null
     private var genderAdapter: ArrayAdapter<CharSequence>? = null
     private var apparel: TextView? = null
@@ -109,8 +107,6 @@ class FragmentEditParticipant(
             }
         }
         birthdate = output.findViewById(R.id.edit_participant_birthdate)
-        mobile = output.findViewById(R.id.edit_participant_mobile)
-        smsEnabled = output.findViewById(R.id.edit_participant_sms_enabled)
         val cancel: Button = output.findViewById(R.id.cancel_button)
         cancel.setOnClickListener(this)
         val submit: Button = output.findViewById(R.id.submit_button)
@@ -150,17 +146,15 @@ class FragmentEditParticipant(
         val month = date.monthValue
         val year = date.year
         birthdate?.setText("$month/$day/$year")
-        mobile?.setText(participant.mobile)
-        smsEnabled?.isChecked = participant.sms
         apparel?.text = participant.apparel
     }
 
-    private fun fromFields(): Participant {
+    private fun fromFields(): DatabaseParticipant {
         var gender = gender?.selectedItem.toString()
         if (gender.equals("other", true)) {
             gender = otherGender?.text.toString()
         }
-        return Participant(
+        return DatabaseParticipant(
             id = participant.id,
             bib = bib?.text.toString(),
             first = first?.text.toString(),
@@ -168,16 +162,16 @@ class FragmentEditParticipant(
             birthdate = birthdate?.text.toString(),
             gender = gender,
             distance = distance?.selectedItem.toString(),
-            mobile = mobile?.text.toString(),
-            sms = smsEnabled?.isChecked == true,
-            apparel = participant.apparel
+            mobile = participant.mobile,
+            sms = participant.sms,
+            apparel = participant.apparel,
         )
     }
 
     override fun onClick(view: View?) {
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
-            if (participant.id < 0) {
+            if (participant.id.isEmpty()) {
                 Globals.con?.sendAsyncMessage(AddParticipantRequest(
                     participant = fromFields()
                 ).encode())
@@ -192,6 +186,7 @@ class FragmentEditParticipant(
     }
 
     override fun updateParticipants() {
+        /*
         val curPart = participant
         for (part: Participant in Globals.getRegistrationParticipants()) {
             if (part.id == participant.id) {
@@ -202,5 +197,6 @@ class FragmentEditParticipant(
         if (participant.isUpdated(curPart)){
             updateFields()
         }
+        */
     }
 }

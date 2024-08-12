@@ -3,14 +3,14 @@ package com.chronokeep.registration.objects.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import com.chronokeep.registration.network.chronokeep.objects.ChronokeepParticipant
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
-@Entity(tableName="participant", primaryKeys=["event_slug", "event_year", "first_name", "last_name", "distance"])
+@Serializable
+@Entity(tableName="participant", primaryKeys=["first_name", "last_name", "distance"])
 class DatabaseParticipant (
-    @ColumnInfo(name="event_slug") val slug: String,
-    @ColumnInfo(name="event_year") val year: String,
     @ColumnInfo(name="registration_id") val id: String,
     @ColumnInfo(name="bib") val bib: String,
     @ColumnInfo(name="first_name") val first: String,

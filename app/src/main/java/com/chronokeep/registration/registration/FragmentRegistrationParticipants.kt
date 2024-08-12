@@ -20,8 +20,7 @@ import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.layouts.ClearEditText
 import com.chronokeep.registration.network.ConnectionHandler
-import com.chronokeep.registration.objects.registration.GetParticipantsRequest
-import com.chronokeep.registration.objects.registration.Participant
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.util.Globals
 
 class FragmentRegistrationParticipants: Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
@@ -31,27 +30,23 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
     private var participantsAdapter: ListAdapterRegistrationParticipants
 
     init {
-        val list = Globals.getRegistrationParticipants()
+        val database = Globals.getDatabase()!!
+        val list: MutableList<DatabaseParticipant> = database.participantDao().getParticipants().toMutableList()
         participantsAdapter = ListAdapterRegistrationParticipants(list, this)
     }
 
     override fun updateTitle() {
         val act = activity as ChronoActivity?
-        act?.setActivityTitle(Globals.getServerInfo().name)
+        act?.setActivityTitle("Chronokeep Registration")
     }
 
     override fun onResume() {
         Log.d(tag, "onResume")
         super.onResume()
-        if (Globals.con == null || Globals.con?.alive() == false) {
-            Log.d(tag, "Con is dead.")
-            val act = activity
-            if (act is ActivityRegistration) {
-                act.finish()
-            }
+        if (Globals.con != null && Globals.con?.alive() == true) {
+            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
         }
         updateTitle()
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
     }
 
     override fun disconnected() {
@@ -63,9 +58,10 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
 
     @SuppressLint("NotifyDataSetChanged")
     override fun updateParticipants() {
-        val list = Globals.getRegistrationParticipants()
+        val database = Globals.getDatabase()!!
+        val list: MutableList<DatabaseParticipant> = database.participantDao().getParticipants().toMutableList()
         Log.d(tag, "updateRegistrationParticipants called")
-        list.sortWith(compareBy<Participant> { part -> part.last }.thenBy { part -> part.first } )
+        list.sortWith(compareBy<DatabaseParticipant> { part -> part.last }.thenBy { part -> part.first } )
         participantsAdapter.objects = list
         participantsAdapter.notifyDataSetChanged()
     }
@@ -76,12 +72,8 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         savedInstanceState: Bundle?
     ): View? {
         Log.d(tag, "onCreateView")
-        if (Globals.con == null || Globals.con?.alive() == false) {
-            Log.d(tag, "Con is dead.")
-            val act = activity
-            if (act is ActivityRegistration) {
-                act.finish()
-            }
+        if (Globals.con != null && Globals.con?.alive() == true) {
+            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
         }
         updateTitle()
         val rootView = inflater.inflate(R.layout.fragment_registration_participants, container, false)
@@ -90,7 +82,6 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         partList?.layoutManager = LinearLayoutManager(context)
         val newButton: Button = rootView.findViewById(R.id.add_participant)
         newButton.setOnClickListener(this)
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
         val searchBox = rootView.findViewById<ClearEditText>(R.id.search_box)
         searchBox?.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -103,15 +94,14 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 participantsAdapter.notifyDataSetChanged()
             }
         })
-        Globals.con?.sendAsyncMessage(GetParticipantsRequest().encode())
         return rootView
     }
 
     override fun onClick(view: View?) {
         // show a DialogFragmentEditParticipant with no built in information
         val readerFrag = FragmentEditParticipant(
-            Participant(
-                id = -1,
+            DatabaseParticipant(
+                id = "",
                 bib = "",
                 first = "",
                 last = "",

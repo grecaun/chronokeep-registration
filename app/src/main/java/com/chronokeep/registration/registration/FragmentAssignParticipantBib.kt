@@ -19,12 +19,12 @@ import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.network.ConnectionHandler
-import com.chronokeep.registration.objects.registration.Participant
+import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
 import com.chronokeep.registration.util.Globals
 
 class FragmentAssignParticipantBib(
-    private var participant: Participant
+    private var participant: DatabaseParticipant
 ) :
     Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
     private val tag: String = "Chrono.BibFra"
@@ -81,9 +81,7 @@ class FragmentAssignParticipantBib(
         name = output.findViewById(R.id.participant_name)
         distance = output.findViewById(R.id.participant_distance)
         bib = output.findViewById(R.id.edit_participant_bib)
-        sms = output.findViewById(R.id.sms_enabled)
         apparel = output.findViewById(R.id.participant_apparel)
-        mobile = output.findViewById(R.id.edit_participant_mobile)
         val cancel: Button = output.findViewById(R.id.cancel_button)
         cancel.setOnClickListener(this)
         val submit: Button = output.findViewById(R.id.submit_button)
@@ -105,8 +103,8 @@ class FragmentAssignParticipantBib(
         mobile?.setText(participant.mobile)
     }
 
-    private fun fromFields(): Participant {
-        return Participant(
+    private fun fromFields(): DatabaseParticipant {
+        return DatabaseParticipant(
             id = participant.id,
             bib = bib?.text.toString(),
             first = participant.first,
@@ -116,13 +114,14 @@ class FragmentAssignParticipantBib(
             distance = participant.distance,
             mobile = mobile?.text.toString(),
             sms = sms?.isChecked == true,
-            apparel = participant.apparel
+            apparel = participant.apparel,
         )
     }
 
     override fun onClick(view: View?) {
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
+            // TODO update database
             Globals.con?.sendAsyncMessage(UpdateParticipantRequest(
                 participant = fromFields()
             ).encode())
@@ -132,12 +131,14 @@ class FragmentAssignParticipantBib(
     }
 
     override fun updateParticipants() {
-        for (part: Participant in Globals.getRegistrationParticipants()) {
+        /*
+        for (part: DatabaseParticipant in Globals.getDatabase()) {
             if (part.id == participant.id) {
                 participant = part
                 break
             }
         }
         updateFields()
+        */
     }
 }

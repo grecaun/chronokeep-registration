@@ -93,33 +93,6 @@
                 android:autofillHints="bib"
                 android:textAlignment="center"
                 />
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/sms_enabled"
-                android:layout_width="300dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:text="@string/sms_enabled"
-                app:switchPadding="5dp"
-                android:theme="@style/ThemeOverlay.MySwitchCompat"
-                />
-            <TextView
-                android:layout_width="300dp"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="@string/mobile"
-                android:layout_marginBottom="5dp"
-                android:labelFor="@id/edit_participant_mobile"
-                />
-            <EditText
-                android:id="@+id/edit_participant_mobile"
-                android:layout_width="300dp"
-                android:layout_gravity="center"
-                android:layout_height="50dp"
-                android:inputType="phone"
-                android:autofillHints="mobile phone"
-                android:textAlignment="center"
-                />
         </LinearLayout>
     </ScrollView>
     <LinearLayout
