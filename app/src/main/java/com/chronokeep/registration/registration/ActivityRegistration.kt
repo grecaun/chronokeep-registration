@@ -1,5 +1,7 @@
 package com.chronokeep.registration.registration
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -41,12 +43,14 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         Globals.setMenuWatcher(this)
+        startLockTask()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d(tag, "onResume")
         Globals.setMenuWatcher(this)
+        startLockTask()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -57,6 +61,17 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val pinMenu = menu?.findItem(R.id.unpin)
+        val actMan = getSystemService(Context.ACTIVITY_SERVICE)
+        when (actMan) {
+            ActivityManager.LOCK_TASK_MODE_PINNED,
+            ActivityManager.LOCK_TASK_MODE_LOCKED-> {
+                pinMenu?.setTitle(R.string.menu_unpin)
+            }
+            ActivityManager.LOCK_TASK_MODE_NONE -> {
+                pinMenu?.setTitle(R.string.menu_pin)
+            }
+        }
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -115,6 +130,18 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     ft.remove(prev)
                 }
                 connectFragment.show(ft, "fragment_connect")
+                return true
+            }
+            R.id.unpin -> {
+                if (item.title.toString().equals(getString(R.string.menu_unpin), true)) {
+                    Log.d(tag, "User requests unpin.")
+                    stopLockTask()
+                    item.setTitle(R.string.menu_pin)
+                } else {
+                    Log.d(tag, "User requests screen pin.")
+                    startLockTask()
+                    item.setTitle(R.string.menu_unpin)
+                }
                 return true
             }
         }

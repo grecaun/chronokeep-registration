@@ -61,6 +61,5 @@
         android:orderInCategory="5"
         android:title="@string/menu_unpin"
         android:contentDescription="@string/menu_unpin"
-        android:visible="false"
         />
 </menu>
