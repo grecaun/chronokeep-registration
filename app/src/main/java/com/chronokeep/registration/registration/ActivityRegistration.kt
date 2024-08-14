@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.chronokeep.registration.R
 import com.chronokeep.registration.about.DialogFragmentAbout
 import com.chronokeep.registration.interfaces.ChronoActivity
+import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.AddUpdateParticipantsRequest
 import com.chronokeep.registration.objects.registration.GetParticipantsRequest
@@ -16,7 +17,7 @@ import com.chronokeep.registration.serverlist.DialogFragmentServerList
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 
-class ActivityRegistration: AppCompatActivity(), ChronoActivity {
+class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     private val tag: String = "Chrono.RAct"
 
     private var menu: Menu? = null
@@ -39,11 +40,13 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity {
             setActivityTitle("Chronokeep Registration")
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        Globals.setMenuWatcher(this)
     }
 
     override fun onResume() {
         super.onResume()
         Log.d(tag, "onResume")
+        Globals.setMenuWatcher(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -121,5 +124,19 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun updateMenu() {
+        if (Globals.connected) {
+            menu?.findItem(R.id.menu_local)?.setVisible(true)
+        }
+        val database = Globals.getDatabase()
+        if (database != null) {
+            val token = database.settingDao().getSetting(Constants.setting_auth_token)
+            val refresh = database.settingDao().getSetting(Constants.setting_refresh_token)
+            if (token != null && refresh != null) {
+                menu?.findItem(R.id.menu_chronokeep)?.setVisible(true)
+            }
+        }
     }
 }

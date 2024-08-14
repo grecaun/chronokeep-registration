@@ -2,6 +2,7 @@ package com.chronokeep.registration.util
 
 import android.content.Context
 import androidx.room.Room
+import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.network.Connection
 import com.chronokeep.registration.objects.ServerInformation
 import com.chronokeep.registration.objects.database.Database
@@ -20,6 +21,16 @@ object Globals {
     var connected = false
 
     var uniqueToken = ""
+
+    private var menuWatcher: MenuWatcher? = null
+
+    fun setMenuWatcher(newWatcher: MenuWatcher?) {
+        menuWatcher = newWatcher
+    }
+
+    fun getMenuWatcher(): MenuWatcher? {
+        return menuWatcher
+    }
 
     // Server information
     private val serverInformation = ServerInformation("", "", 0)

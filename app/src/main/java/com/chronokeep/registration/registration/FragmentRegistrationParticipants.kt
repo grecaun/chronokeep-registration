@@ -44,7 +44,7 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         Log.d(tag, "onResume")
         super.onResume()
         if (Globals.con != null && Globals.con?.alive() == true) {
-            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
+            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         }
         updateTitle()
     }
@@ -66,7 +66,7 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
     ): View? {
         Log.d(tag, "onCreateView")
         if (Globals.con != null && Globals.con?.alive() == true) {
-            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
+            Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         }
         updateTitle()
         val rootView = inflater.inflate(R.layout.fragment_registration_participants, container, false)

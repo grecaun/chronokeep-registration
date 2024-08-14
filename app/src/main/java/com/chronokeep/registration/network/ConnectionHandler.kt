@@ -1,22 +1,22 @@
 package com.chronokeep.registration.network
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.chronokeep.registration.interfaces.ChronoFragment
+import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.registration.RegistrationError
-import com.chronokeep.registration.registration.ActivityRegistration
 import com.chronokeep.registration.util.Globals
 import com.chronokeep.registration.wait.DialogFragmentWait
 import java.lang.ref.WeakReference
 
-class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activity?): Handler(looper) {
+class ConnectionHandler(
+    looper: Looper,
+    frag: Fragment
+): Handler(looper) {
     private val tag = "Chrono.ConHandler"
     private val mFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
     private var dFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
@@ -46,16 +46,16 @@ class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activit
                     Log.d(tag, "error closing connection")
                 }
                 if (frag is DialogFragmentWait) {
-                    val intent = Intent(act, ActivityRegistration::class.java)
-                    act?.startActivity(intent)
+                    Globals.getMenuWatcher()?.updateMenu()
+                    frag.dismiss()
                 }
             }
             Connection.msg_connection_open -> {
                 Log.d(tag, "Connection open.")
                 if (frag is DialogFragmentWait) {
                     Globals.connected = true
-                    val intent = Intent(act, ActivityRegistration::class.java)
-                    act?.startActivity(intent)
+                    Globals.getMenuWatcher()?.updateMenu()
+                    frag.dismiss()
                 }
             }
             Connection.msg_connection_success -> {

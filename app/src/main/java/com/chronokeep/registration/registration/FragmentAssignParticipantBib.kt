@@ -67,7 +67,7 @@ class FragmentAssignParticipantBib(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
+        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         bib?.requestFocus()
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(bib, InputMethodManager.SHOW_IMPLICIT)

@@ -26,9 +26,8 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.d(tag, "onCreateView")
-        val act = activity
-        if (act != null && this.address != null) {
-            val handle = ConnectionHandler(Looper.getMainLooper(), this, act)
+        if (this.address != null) {
+            val handle = ConnectionHandler(Looper.getMainLooper(), this)
             Globals.con = Connection(this.address, this.port, handle)
             Globals.conThread = Thread(Globals.con)
             Globals.conThread?.start()

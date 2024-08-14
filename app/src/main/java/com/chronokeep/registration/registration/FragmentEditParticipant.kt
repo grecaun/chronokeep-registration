@@ -98,7 +98,7 @@ class FragmentEditParticipant(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this, activity))
+        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         return output
     }
 
