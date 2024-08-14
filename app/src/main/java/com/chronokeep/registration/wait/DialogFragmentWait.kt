@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.list_items.Server
-import com.chronokeep.registration.network.Connection
 import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.util.Globals
 import java.net.InetAddress
@@ -27,10 +26,8 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
     ): View? {
         Log.d(tag, "onCreateView")
         if (this.address != null) {
-            val handle = ConnectionHandler(Looper.getMainLooper(), this)
-            Globals.con = Connection(this.address, this.port, handle)
-            Globals.conThread = Thread(Globals.con)
-            Globals.conThread?.start()
+            val handler = ConnectionHandler(Looper.getMainLooper(), this)
+            Globals.startConnection(address = this.address, port = this.port, handler = handler)
         }
         return inflater.inflate(R.layout.dialogfragment_wait, container, false)
     }
@@ -47,9 +44,9 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
     override fun onResume() {
         super.onResume()
         Log.d(tag, "onResume")
-        if (Globals.connected) {
+        if (Globals.isConnected()) {
             this.dismiss()
-            Globals.connected = false
+            Globals.setConnected(false)
         }
     }
 }

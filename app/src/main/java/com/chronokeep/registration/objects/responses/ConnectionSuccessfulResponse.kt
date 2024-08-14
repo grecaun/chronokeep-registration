@@ -3,6 +3,7 @@ package com.chronokeep.registration.objects.responses
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 @Serializable
 @SerialName("connection_successful")
 class ConnectionSuccessfulResponse (

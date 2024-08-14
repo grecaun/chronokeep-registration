@@ -121,8 +121,7 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
             if (thisFrag != null) {
                 ft.remove(thisFrag)
             }
-            ft.addToBackStack(null)
-            this.dismissNow()
+            this.dismiss()
             loginFrag.show(ft, "fragment_login")
         }
     }
@@ -142,8 +141,7 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         if (thisFrag != null) {
             ft.remove(thisFrag)
         }
-        ft.addToBackStack(null)
-        this.dismissNow()
+        this.dismiss()
         nextFrag.show(ft, "fragment_wait")
     }
 

@@ -10,10 +10,11 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
 
+@Suppress("SpellCheckingInspection")
 class DialogFragmentNotification(
-    val message: String
+    private val message: String
 ): DialogFragment() {
-    private val tag: String = "Chrono.Notifi"
+    private val tag: String = "Chrono.Notif"
 
     override fun onCreateView(
         inflater: LayoutInflater,

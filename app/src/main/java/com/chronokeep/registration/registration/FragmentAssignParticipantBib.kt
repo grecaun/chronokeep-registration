@@ -67,7 +67,7 @@ class FragmentAssignParticipantBib(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
+        Globals.getConnection()?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         bib?.requestFocus()
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(bib, InputMethodManager.SHOW_IMPLICIT)
@@ -103,7 +103,7 @@ class FragmentAssignParticipantBib(
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
             Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
-            Globals.con?.sendAsyncMessage(UpdateParticipantRequest(
+            Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
                 participant = fromFields()
             ).encode())
             watcher.updateParticipants()

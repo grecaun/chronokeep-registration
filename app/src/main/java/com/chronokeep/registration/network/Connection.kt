@@ -2,7 +2,6 @@ package com.chronokeep.registration.network
 
 import android.os.Message
 import android.util.Log
-import androidx.fragment.app.Fragment
 import com.chronokeep.registration.objects.responses.RegistrationConnectionSuccessfulResponse
 import com.chronokeep.registration.objects.responses.ErrorResponse
 import com.chronokeep.registration.objects.responses.ParticipantsResponse
@@ -85,10 +84,6 @@ class Connection(
 
     fun setHandler(handler: ConnectionHandler) {
         this.handler = handler
-    }
-
-    fun setDialogFragment(frag: Fragment) {
-        this.handler.setDFrag(frag)
     }
 
     private fun conUnavailable() {

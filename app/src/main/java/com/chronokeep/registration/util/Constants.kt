@@ -1,3 +1,5 @@
+@file:Suppress("ConstPropertyName", "unused")
+
 package com.chronokeep.registration.util
 
 object Constants {

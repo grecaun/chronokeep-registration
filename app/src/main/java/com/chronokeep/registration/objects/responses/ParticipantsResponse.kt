@@ -4,6 +4,7 @@ import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 @Serializable
 @SerialName("registration_participants")
 class ParticipantsResponse (

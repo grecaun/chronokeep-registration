@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.network.Connection
+import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.objects.ServerInformation
 import com.chronokeep.registration.objects.database.Database
 import com.chronokeep.registration.objects.registration.RegistrationError
+import java.net.InetAddress
 
 object Globals {
     class RegistrationInfo {
@@ -15,10 +17,43 @@ object Globals {
     }
 
     // Connection and thread for dealing with our open connection.
-    var con: Connection? = null
-    var conThread: Thread? = null
+    private var con: Connection? = null
+    private var conThread: Thread? = null
 
-    var connected = false
+    fun startConnection(address: InetAddress, port: Int, handler: ConnectionHandler) {
+        if (con != null && con!!.alive()) {
+            con!!.stop()
+            conThread = null
+        }
+        con = Connection(address, port, handler)
+        conThread = Thread(con)
+        conThread?.start()
+    }
+
+    fun stopConnection() {
+        con?.stop()
+        conThread = null
+    }
+
+    fun getConnection(): Connection? {
+        return con
+    }
+
+    fun setConnectionHandler(handler: ConnectionHandler) {
+        if (con != null && con?.alive() == true) {
+            con?.setHandler(handler)
+        }
+    }
+
+    private var connected = false
+
+    fun setConnected(newConnected: Boolean) {
+        connected = newConnected
+    }
+
+    fun isConnected(): Boolean {
+        return connected
+    }
 
     var uniqueToken = ""
 

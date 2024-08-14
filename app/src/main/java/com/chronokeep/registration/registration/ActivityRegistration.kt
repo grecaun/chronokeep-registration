@@ -52,17 +52,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         this.menu = menu
         menuInflater.inflate(R.menu.main, menu)
-        if (Globals.connected) {
-            menu?.findItem(R.id.menu_local)?.setVisible(true)
-        }
-        val database = Globals.getDatabase()
-        if (database != null) {
-            val token = database.settingDao().getSetting(Constants.setting_auth_token)
-            val refresh = database.settingDao().getSetting(Constants.setting_refresh_token)
-            if (token != null && refresh != null) {
-                menu?.findItem(R.id.menu_chronokeep)?.setVisible(true)
-            }
-        }
+        updateMenu()
         return true
     }
 
@@ -93,14 +83,19 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                         toUpload.add(part)
                     }
                 }
-                Globals.con?.sendAsyncMessage(AddUpdateParticipantsRequest(
+                Globals.getConnection()?.sendAsyncMessage(AddUpdateParticipantsRequest(
                     participants = toUpload
                 ).encode())
                 return true
             }
             R.id.download_local -> {
                 Log.d(tag, "User wants to download from local server.")
-                Globals.con?.sendAsyncMessage(GetParticipantsRequest().encode())
+                try {
+                    Globals.getConnection()?.sendAsyncMessage(GetParticipantsRequest().encode())
+                } catch (e: Exception) {
+                    Log.d(tag, "Exception when sending message: ${e.message}")
+                    Globals.getConnection()?.stop()
+                }
                 return true
             }
             R.id.upload_web -> {
@@ -127,7 +122,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     }
 
     override fun updateMenu() {
-        if (Globals.connected) {
+        if (Globals.isConnected()) {
             menu?.findItem(R.id.menu_local)?.setVisible(true)
         }
         val database = Globals.getDatabase()

@@ -40,8 +40,4 @@ class ClearEditText(context: Context?, attrs: AttributeSet) : RelativeLayout(con
     fun addTextChangedListener(tw: TextWatcher) {
         editText.addTextChangedListener(tw)
     }
-
-    fun getText(): Editable? {
-        return editText.text
-    }
 }

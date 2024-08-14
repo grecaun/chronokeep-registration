@@ -5,6 +5,4 @@ object RequestCommands {
     const val UPDATE_PARTICIPANT  = "participant_update"
     const val ADD_PARTICIPANT = "participant_add"
     const val ADD_UPDATE_PARTICIPANTS = "participant_add_update"
-    const val DISCONNECT = "disconnect"
-    const val CONNECT = "connect"
 }

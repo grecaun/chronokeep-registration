@@ -6,7 +6,6 @@ import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.registration.RegistrationError
 import com.chronokeep.registration.util.Globals
@@ -19,11 +18,6 @@ class ConnectionHandler(
 ): Handler(looper) {
     private val tag = "Chrono.ConHandler"
     private val mFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
-    private var dFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
-
-    fun setDFrag(frag: Fragment) {
-        dFrag = WeakReference<Fragment>(frag)
-    }
 
     override fun handleMessage(msg: Message) {
         val frag = mFrag.get() ?: return
@@ -31,8 +25,7 @@ class ConnectionHandler(
             Connection.msg_connection_closed -> {
                 Log.d(tag, "Connection closed.")
                 try {
-                    Globals.con?.stop()
-                    Globals.conThread = null
+                    Globals.stopConnection()
                 } catch (_: Exception) {
                     Log.d(tag, "error closing connection")
                 }
@@ -40,8 +33,7 @@ class ConnectionHandler(
             Connection.msg_connection_unavailable -> {
                 Log.d(tag, "Unable to connect.")
                 try {
-                    Globals.con?.stop()
-                    Globals.conThread = null
+                    Globals.stopConnection()
                 } catch (_: Exception) {
                     Log.d(tag, "error closing connection")
                 }
@@ -53,7 +45,7 @@ class ConnectionHandler(
             Connection.msg_connection_open -> {
                 Log.d(tag, "Connection open.")
                 if (frag is DialogFragmentWait) {
-                    Globals.connected = true
+                    Globals.setConnected(true)
                     Globals.getMenuWatcher()?.updateMenu()
                     frag.dismiss()
                 }

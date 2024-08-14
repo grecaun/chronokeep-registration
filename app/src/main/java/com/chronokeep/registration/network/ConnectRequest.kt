@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Suppress("unused")
 @Serializable
 class ConnectRequest (
     val command: String = "connect",

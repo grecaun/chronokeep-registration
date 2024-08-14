@@ -98,7 +98,7 @@ class FragmentEditParticipant(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.con?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
+        Globals.getConnection()?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         return output
     }
 
@@ -160,12 +160,12 @@ class FragmentEditParticipant(
         if (view?.id == R.id.submit_button) {
             if (participant.id.isEmpty()) {
                 Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
-                Globals.con?.sendAsyncMessage(AddParticipantRequest(
+                Globals.getConnection()?.sendAsyncMessage(AddParticipantRequest(
                     participant = fromFields()
                 ).encode())
             } else {
                 Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
-                Globals.con?.sendAsyncMessage(UpdateParticipantRequest(
+                Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
                     participant = fromFields()
                 ).encode())
             }
