@@ -8,12 +8,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 
-class ListAdapterRegistrationParticipants(var objects: MutableList<DatabaseParticipant>, private val frag: Fragment) :
+class ListAdapterRegistrationParticipants(
+    var objects: MutableList<DatabaseParticipant>,
+    private val frag: FragmentRegistrationParticipants
+) :
     RecyclerView.Adapter<ListAdapterRegistrationParticipants.ParticipantView>() {
     private val tag: String = "Chrono.PartLA"
 
@@ -49,7 +51,7 @@ class ListAdapterRegistrationParticipants(var objects: MutableList<DatabaseParti
             return
         }
         val participant = objects[position]
-        val bibFrag = FragmentAssignParticipantBib(participant = participant)
+        val bibFrag = FragmentAssignParticipantBib(participant = participant, watcher = frag)
         frag.requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.registration_fragment_container, bibFrag)
             .addToBackStack("fragment_bib_participant")
@@ -62,7 +64,7 @@ class ListAdapterRegistrationParticipants(var objects: MutableList<DatabaseParti
             return
         }
         val participant = objects[position]
-        val editFrag = FragmentEditParticipant(participant = participant)
+        val editFrag = FragmentEditParticipant(participant = participant, watcher = frag)
         frag.requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.registration_fragment_container, editFrag)
             .addToBackStack("fragment_edit_participant")

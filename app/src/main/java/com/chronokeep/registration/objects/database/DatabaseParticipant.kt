@@ -2,15 +2,19 @@ package com.chronokeep.registration.objects.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.chronokeep.registration.network.chronokeep.objects.ChronokeepParticipant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Serializable
-@Entity(tableName="participant", primaryKeys=["first_name", "last_name", "distance", "birthdate"])
+@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate"], unique = true)])
 class DatabaseParticipant (
+    @Transient @PrimaryKey(autoGenerate = true) @ColumnInfo(name="row_id") val primary: Int = 0,
     @ColumnInfo(name="registration_id") val id: String,
     @ColumnInfo(name="bib") val bib: String,
     @ColumnInfo(name="first_name") val first: String,

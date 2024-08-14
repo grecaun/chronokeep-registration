@@ -36,9 +36,6 @@ class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activit
                 } catch (_: Exception) {
                     Log.d(tag, "error closing connection")
                 }
-                if (frag is ChronoFragment) {
-                    frag.disconnected()
-                }
             }
             Connection.msg_connection_unavailable -> {
                 Log.d(tag, "Unable to connect.")
@@ -48,8 +45,9 @@ class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activit
                 } catch (_: Exception) {
                     Log.d(tag, "error closing connection")
                 }
-                if (frag is ChronoFragment) {
-                    frag.disconnected()
+                if (frag is DialogFragmentWait) {
+                    val intent = Intent(act, ActivityRegistration::class.java)
+                    act?.startActivity(intent)
                 }
             }
             Connection.msg_connection_open -> {

@@ -7,6 +7,8 @@ import kotlinx.serialization.json.Json
 @Serializable
 class ConnectRequest (
     val command: String = "connect",
+    val reads: Boolean = false,
+    val sightings: Boolean = false,
 ) {
     fun encode(): String {
         val format = Json { encodeDefaults = true }

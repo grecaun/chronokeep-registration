@@ -49,13 +49,6 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         updateTitle()
     }
 
-    override fun disconnected() {
-        val act = activity
-        if (act is ActivityRegistration) {
-            act.finish()
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     override fun updateParticipants() {
         val database = Globals.getDatabase()!!
@@ -111,7 +104,8 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 mobile = "",
                 sms = false,
                 apparel = ""
-            )
+            ),
+            this
         )
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.registration_fragment_container, readerFrag)

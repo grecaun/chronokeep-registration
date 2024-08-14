@@ -3,7 +3,7 @@ package com.chronokeep.registration.network
 import android.os.Message
 import android.util.Log
 import androidx.fragment.app.Fragment
-import com.chronokeep.registration.objects.responses.ConnectionSuccessfulResponse
+import com.chronokeep.registration.objects.responses.RegistrationConnectionSuccessfulResponse
 import com.chronokeep.registration.objects.responses.ErrorResponse
 import com.chronokeep.registration.objects.responses.ParticipantsResponse
 import com.chronokeep.registration.objects.responses.Response
@@ -50,6 +50,7 @@ class Connection(
         ignoreUnknownKeys = true
         encodeDefaults = true
         classDiscriminator = "command"
+        isLenient = true
     }
 
     private fun initialize() {
@@ -142,7 +143,7 @@ class Connection(
                                 Log.d(tag, "${data.command} message received.")
                                 when (data.command) {
                                     "registration_connection_successful" -> {
-                                        val conData: ConnectionSuccessfulResponse = data as ConnectionSuccessfulResponse
+                                        val conData: RegistrationConnectionSuccessfulResponse = data as RegistrationConnectionSuccessfulResponse
                                         Globals.setServerInfo(conData.name, conData.kind, conData.version)
                                         val msg = Message()
                                         msg.what = msg_connection_open
@@ -159,6 +160,7 @@ class Connection(
                                         val partData: ParticipantsResponse = data as ParticipantsResponse
                                         Log.d(tag, "number of participants: ${partData.participants.size}")
                                         Globals.getDatabase()?.participantDao()?.addParticipants(partData.participants)
+                                        Globals.setRegistrationDistances()
                                         val msg = Message()
                                         msg.what = msg_connection_participants
                                         handler.sendMessage(msg)
@@ -166,6 +168,7 @@ class Connection(
                                     "disconnect" -> {
                                         conUnavailable()
                                     }
+                                    "keepalive" -> {}
                                     else -> {
                                         conUnavailable()
                                     }

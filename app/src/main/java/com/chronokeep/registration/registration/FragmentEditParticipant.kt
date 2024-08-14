@@ -31,7 +31,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class FragmentEditParticipant(
-    private var participant: DatabaseParticipant
+    private var participant: DatabaseParticipant,
+    private val watcher: ParticipantsWatcher
 ) :
     Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
     private val tag: String = "Chrono.EditPartDia"
@@ -54,21 +55,7 @@ class FragmentEditParticipant(
 
     override fun onResume() {
         super.onResume()
-        if (Globals.con == null || Globals.con?.alive() == false) {
-            Log.d(tag, "Con is dead.")
-            val act = activity
-            if (act is ActivityRegistration) {
-                act.finish()
-            }
-        }
         updateTitle()
-    }
-
-    override fun disconnected() {
-        val act = activity
-        if (act is ActivityRegistration) {
-            act.finish()
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -154,6 +141,7 @@ class FragmentEditParticipant(
             gender = otherGender?.text.toString()
         }
         return DatabaseParticipant(
+            primary = participant.primary,
             id = participant.id,
             bib = bib?.text.toString(),
             first = first?.text.toString(),
@@ -171,14 +159,17 @@ class FragmentEditParticipant(
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
             if (participant.id.isEmpty()) {
+                Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
                 Globals.con?.sendAsyncMessage(AddParticipantRequest(
                     participant = fromFields()
                 ).encode())
             } else {
+                Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
                 Globals.con?.sendAsyncMessage(UpdateParticipantRequest(
                     participant = fromFields()
                 ).encode())
             }
+            watcher.updateParticipants()
         }
         val fragmentManager = requireActivity().supportFragmentManager
         fragmentManager.popBackStack()

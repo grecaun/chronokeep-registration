@@ -117,11 +117,12 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
             if (prev != null) {
                 ft.remove(prev)
             }
-            val thisFrag = parentFragmentManager.findFragmentByTag("fragment_server_list")
+            val thisFrag = parentFragmentManager.findFragmentByTag("fragment_connect")
             if (thisFrag != null) {
                 ft.remove(thisFrag)
             }
             ft.addToBackStack(null)
+            this.dismissNow()
             loginFrag.show(ft, "fragment_login")
         }
     }
@@ -137,11 +138,12 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         val nextFrag = DialogFragmentWait(item)
         stopped = true
         val ft = parentFragmentManager.beginTransaction()
-        val thisFrag = parentFragmentManager.findFragmentByTag("fragment_server_list")
+        val thisFrag = parentFragmentManager.findFragmentByTag("fragment_connect")
         if (thisFrag != null) {
             ft.remove(thisFrag)
         }
         ft.addToBackStack(null)
+        this.dismissNow()
         nextFrag.show(ft, "fragment_wait")
     }
 

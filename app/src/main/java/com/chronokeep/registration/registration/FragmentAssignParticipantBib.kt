@@ -24,7 +24,8 @@ import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
 import com.chronokeep.registration.util.Globals
 
 class FragmentAssignParticipantBib(
-    private var participant: DatabaseParticipant
+    private var participant: DatabaseParticipant,
+    private val watcher: ParticipantsWatcher
 ) :
     Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
     private val tag: String = "Chrono.BibFra"
@@ -44,23 +45,9 @@ class FragmentAssignParticipantBib(
 
     override fun onResume() {
         super.onResume()
-        if (Globals.con == null || Globals.con?.alive() == false) {
-            Log.d(tag, "Con is dead.")
-            val act = activity
-            if (act is ActivityRegistration) {
-                act.finish()
-            }
-        }
         bib?.requestFocus()
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(bib, InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    override fun disconnected() {
-        val act = activity
-        if (act is ActivityRegistration) {
-            act.finish()
-        }
     }
 
     override fun onCreateView(
@@ -69,13 +56,6 @@ class FragmentAssignParticipantBib(
         savedInstanceState: Bundle?
     ): View? {
         Log.d(tag, "onCreateView")
-        if (Globals.con == null || Globals.con?.alive() == false) {
-            Log.d(tag, "Con is dead.")
-            val act = activity
-            if (act is ActivityRegistration) {
-                act.finish()
-            }
-        }
         updateTitle()
         val output = inflater.inflate(R.layout.dialogfragment_registration_bib_assign, container, false)
         name = output.findViewById(R.id.participant_name)
@@ -105,6 +85,7 @@ class FragmentAssignParticipantBib(
 
     private fun fromFields(): DatabaseParticipant {
         return DatabaseParticipant(
+            primary = participant.primary,
             id = participant.id,
             bib = bib?.text.toString(),
             first = participant.first,
@@ -121,10 +102,11 @@ class FragmentAssignParticipantBib(
     override fun onClick(view: View?) {
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
-            // TODO update database
+            Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
             Globals.con?.sendAsyncMessage(UpdateParticipantRequest(
                 participant = fromFields()
             ).encode())
+            watcher.updateParticipants()
         }
         val fragmentManager = requireActivity().supportFragmentManager
         fragmentManager.popBackStack()

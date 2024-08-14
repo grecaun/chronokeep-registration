@@ -36,11 +36,20 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
         return inflater.inflate(R.layout.dialogfragment_wait, container, false)
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (dialog != null) {
+            val width = ViewGroup.LayoutParams.MATCH_PARENT
+            val height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog!!.window?.setLayout(width, height)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         Log.d(tag, "onResume")
         if (Globals.connected) {
-            //parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, FragmentServerList()).commit()
+            this.dismiss()
             Globals.connected = false
         }
     }

@@ -16,13 +16,11 @@ class ListAdapterServer(val objects: MutableList<Server>, private val frag: Dial
     private val tag = "Chrono.SLA"
 
     class ServerView(private val frag: DialogFragmentServerList, view: View) : RecyclerView.ViewHolder(view), OnClickListener {
-        val nameView: TextView
-        val idView: TextView
+        val nameView: TextView = view.findViewById(R.id.sli_name)
+        val idView: TextView = view.findViewById(R.id.sli_identifier)
         var pos: Int = -1
 
         init {
-            nameView = view.findViewById(R.id.sli_name)
-            idView = view.findViewById(R.id.sli_identifier)
             val connectButton: Button = view.findViewById(R.id.sli_connect)
             connectButton.setOnClickListener(this)
             view.setOnClickListener(this)

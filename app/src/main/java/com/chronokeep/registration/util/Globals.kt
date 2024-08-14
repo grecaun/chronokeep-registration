@@ -10,7 +10,7 @@ import com.chronokeep.registration.objects.registration.RegistrationError
 object Globals {
     class RegistrationInfo {
         var error = RegistrationError.NONE
-        val distances = ArrayList<String>()
+        val distances = HashSet<String>()
     }
 
     // Connection and thread for dealing with our open connection.
@@ -38,13 +38,27 @@ object Globals {
         if (database == null) {
             database = Room.databaseBuilder(context, Database::class.java, "chronokeep-control").allowMainThreadQueries().build()
         }
+        val participants = database?.participantDao()?.getParticipants()
+        synchronized(registration.distances) {
+            registration.distances.clear()
+            if (participants != null) {
+                for (part in participants) {
+                    registration.distances.add(part.distance)
+                }
+            }
+        }
     }
 
     // Registration information getters and setters
-    fun setRegistrationDistances(distances: ArrayList<String>) {
+    fun setRegistrationDistances() {
+        val participants = database?.participantDao()?.getParticipants()
         synchronized(registration.distances) {
             registration.distances.clear()
-            registration.distances.addAll(distances)
+            if (participants != null) {
+                for (part in participants) {
+                    registration.distances.add(part.distance)
+                }
+            }
         }
     }
 

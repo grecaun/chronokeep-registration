@@ -15,8 +15,14 @@ interface DatabaseParticipantDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addParticipants(parts: List<DatabaseParticipant>)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun addParticipant(part: DatabaseParticipant)
+
     @Update
     fun updateParticipants(parts: List<DatabaseParticipant>)
+
+    @Update
+    fun updateParticipant(part: DatabaseParticipant)
 
     @Delete
     fun deleteParticipants(parts: List<DatabaseParticipant>)
