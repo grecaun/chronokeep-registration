@@ -17,7 +17,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ChronoActivity
@@ -78,7 +77,7 @@ class FragmentEditParticipant(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val output = inflater.inflate(R.layout.fragment_registration_edit_participant, container, false)
+        val output = inflater.inflate(R.layout.dialogfragment_registration_edit_participant, container, false)
         distance = output.findViewById(R.id.edit_participant_distance)
         bib = output.findViewById(R.id.edit_participant_bib)
         first = output.findViewById(R.id.edit_participant_first_name)
@@ -185,18 +184,5 @@ class FragmentEditParticipant(
         fragmentManager.popBackStack()
     }
 
-    override fun updateParticipants() {
-        /*
-        val curPart = participant
-        for (part: Participant in Globals.getRegistrationParticipants()) {
-            if (part.id == participant.id) {
-                participant = part
-                break
-            }
-        }
-        if (participant.isUpdated(curPart)){
-            updateFields()
-        }
-        */
-    }
+    override fun updateParticipants() {}
 }

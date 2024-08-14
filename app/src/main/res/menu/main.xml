@@ -1,14 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/about"
+        android:id="@+id/menu_connect"
+        android:orderInCategory="0"
+        android:title="@string/connect"
+        android:contentDescription="@string/connect"
+        />
+    <item
+        android:id="@+id/menu_chronokeep"
         android:orderInCategory="1"
+        android:title="@string/menu_chronokeep"
+        android:contentDescription="@string/connect"
+        android:visible="false"
+        >
+        <menu>
+            <item
+                android:id="@+id/upload_web"
+                android:orderInCategory="0"
+                android:title="@string/menu_upload_web"
+                android:contentDescription="@string/menu_upload_web"
+                />
+            <item
+                android:id="@+id/download_web"
+                android:orderInCategory="1"
+                android:title="@string/menu_download_web"
+                android:contentDescription="@string/menu_download_web"
+                />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu_local"
+        android:orderInCategory="2"
+        android:title="@string/menu_local"
+        android:contentDescription="@string/menu_local"
+        android:visible="false"
+        >
+        <menu>
+            <item
+                android:id="@+id/upload_local"
+                android:orderInCategory="2"
+                android:title="@string/menu_upload_local"
+                android:contentDescription="@string/menu_upload_local"
+                />
+            <item
+                android:id="@+id/download_local"
+                android:orderInCategory="3"
+                android:title="@string/menu_download_local"
+                android:contentDescription="@string/menu_download_local"
+                />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="4"
         android:title="@string/menu_main_about"
         android:contentDescription="@string/menu_main_about"
         />
     <item
         android:id="@+id/unpin"
-        android:orderInCategory="2"
+        android:orderInCategory="5"
         android:title="@string/menu_unpin"
         android:contentDescription="@string/menu_unpin"
         android:visible="false"

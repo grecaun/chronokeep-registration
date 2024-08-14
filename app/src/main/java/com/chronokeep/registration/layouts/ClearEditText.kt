@@ -12,12 +12,11 @@ import android.widget.RelativeLayout
 import com.chronokeep.registration.R
 
 class ClearEditText(context: Context?, attrs: AttributeSet) : RelativeLayout(context, attrs) {
-    var inflater: LayoutInflater
+    private var inflater: LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private var editText: EditText
     var clearButton: ImageButton
 
     init {
-        inflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.clearable_edit_text, this, true)
         editText = findViewById(R.id.clearable_edit)
         clearButton = findViewById(R.id.clearable_button_clear)

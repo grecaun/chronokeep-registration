@@ -10,14 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
 import com.chronokeep.registration.list_items.Server
 import com.chronokeep.registration.network.ServerFinder
-import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 import com.chronokeep.registration.wait.DialogFragmentWait
 import com.chronokeep.registration.registration.DialogFragmentLogin
@@ -34,9 +32,21 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
     private var isActive = false
     private var stopped = false
 
+    var refresh: View? = null
+    var search: View? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(tag, "onCreate")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (dialog != null) {
+            val width = ViewGroup.LayoutParams.MATCH_PARENT
+            val height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog!!.window?.setLayout(width, height)
+        }
     }
 
     override fun onCreateView(
@@ -45,14 +55,15 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         aSavedInstanceState: Bundle?
     ) : View {
         Log.d(tag, "onCreateView")
-        val rootView = aInflater.inflate(R.layout.fragment_connect, aContainer, false)
+        val rootView = aInflater.inflate(R.layout.dialogfragment_connect, aContainer, false)
         val serverList = rootView.findViewById<RecyclerView>(R.id.serverlist)
         Log.d(tag, "Setting adapter to listview.")
         serverListAdapter = ListAdapterServer(serverListItems, this)
         serverList.adapter = serverListAdapter
         serverList.layoutManager = LinearLayoutManager(context)
-        rootView.findViewById<Button>(R.id.refreshButton).setOnClickListener(this)
-        rootView.findViewById<Button>(R.id.web_connect).setOnClickListener(this)
+        refresh = rootView.findViewById<Button>(R.id.refreshButton)
+        refresh?.setOnClickListener(this)
+        search = rootView.findViewById(R.id.searchLayout)
         rootView.findViewById<Button>(R.id.web_connect).setOnClickListener(this)
         return rootView
     }
@@ -69,15 +80,15 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
             background = Thread(serverFinder)
             background!!.start()
             isActive = true
-            activity?.findViewById<View>(R.id.refreshButton)?.visibility = View.GONE
-            activity?.findViewById<View>(R.id.searchLayout)?.visibility = View.VISIBLE
+            refresh?.visibility = View.GONE
+            search?.visibility = View.VISIBLE
         } else {
             val handle = ServFindHandler(Looper.getMainLooper(), this, serverListItems, serverListAdapter)
             serverFinder?.setHandler(handle)
         }
         if (serverFinder?.stopped() == true) {
-            activity?.findViewById<View>(R.id.refreshButton)?.visibility = View.VISIBLE
-            activity?.findViewById<View>(R.id.searchLayout)?.visibility = View.GONE
+            refresh?.visibility = View.VISIBLE
+            search?.visibility = View.GONE
         }
     }
 
@@ -86,8 +97,8 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         Log.d(tag, "onClick")
         if (view.tag == getString(R.string.tag_button)) {
             Log.d(tag, "Someone clicked the top bar button")
-            activity?.findViewById<View>(R.id.refreshButton)?.visibility = View.GONE
-            activity?.findViewById<View>(R.id.searchLayout)?.visibility = View.VISIBLE
+            refresh?.visibility = View.GONE
+            search?.visibility = View.VISIBLE
             serverListItems.clear()
             serverListAdapter?.notifyDataSetChanged()
             Log.d(tag, "Creating handler.")
@@ -159,14 +170,8 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
                 }
                 ServerFinder.msg_server_finder_done -> {
                     Log.d(tag, "Server search finished.")
-                    val search = connectFragment.activity?.findViewById<View>(R.id.searchLayout)
-                    if (search != null) {
-                        search.visibility = View.GONE
-                    }
-                    val refresh = connectFragment.activity?.findViewById<View>(R.id.refreshButton)
-                    if (refresh != null) {
-                        refresh.visibility = View.VISIBLE
-                    }
+                    connectFragment.search?.visibility = View.GONE
+                    connectFragment.refresh?.visibility = View.VISIBLE
                     connectFragment.isActive = false
                 }
                 else -> {

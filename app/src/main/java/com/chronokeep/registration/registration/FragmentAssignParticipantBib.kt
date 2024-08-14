@@ -77,7 +77,7 @@ class FragmentAssignParticipantBib(
             }
         }
         updateTitle()
-        val output = inflater.inflate(R.layout.fragment_registration_bib_assign, container, false)
+        val output = inflater.inflate(R.layout.dialogfragment_registration_bib_assign, container, false)
         name = output.findViewById(R.id.participant_name)
         distance = output.findViewById(R.id.participant_distance)
         bib = output.findViewById(R.id.edit_participant_bib)
@@ -130,15 +130,5 @@ class FragmentAssignParticipantBib(
         fragmentManager.popBackStack()
     }
 
-    override fun updateParticipants() {
-        /*
-        for (part: DatabaseParticipant in Globals.getDatabase()) {
-            if (part.id == participant.id) {
-                participant = part
-                break
-            }
-        }
-        updateFields()
-        */
-    }
+    override fun updateParticipants() {}
 }

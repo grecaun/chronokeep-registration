@@ -68,8 +68,7 @@ class DialogFragmentLogin : DialogFragment(), OnClickListener {
         cancelButton.setOnClickListener(this)
         val token = database!!.settingDao().getSetting(Constants.setting_auth_token)
         val refresh = database!!.settingDao().getSetting(Constants.setting_refresh_token)
-        val eventSlug = database!!.settingDao().getSetting(Constants.setting_event_slug)
-        if (token != null && refresh != null && eventSlug != null) {
+        if (token != null && refresh != null) {
             Toast.makeText(context, "Already logged in!", Toast.LENGTH_SHORT).show()
             // TODO change to waiting -> check if tokens are valid -> change to event select
         }

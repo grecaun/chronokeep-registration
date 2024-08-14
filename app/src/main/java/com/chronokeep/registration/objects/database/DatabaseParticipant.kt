@@ -9,7 +9,7 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Serializable
-@Entity(tableName="participant", primaryKeys=["first_name", "last_name", "distance"])
+@Entity(tableName="participant", primaryKeys=["first_name", "last_name", "distance", "birthdate"])
 class DatabaseParticipant (
     @ColumnInfo(name="registration_id") val id: String,
     @ColumnInfo(name="bib") val bib: String,

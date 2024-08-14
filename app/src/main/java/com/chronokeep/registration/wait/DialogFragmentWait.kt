@@ -33,7 +33,7 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
             Globals.conThread = Thread(Globals.con)
             Globals.conThread?.start()
         }
-        return inflater.inflate(R.layout.fragment_wait, container, false)
+        return inflater.inflate(R.layout.dialogfragment_wait, container, false)
     }
 
     override fun onResume() {

@@ -158,7 +158,7 @@ class Connection(
                                     "registration_participants" -> {
                                         val partData: ParticipantsResponse = data as ParticipantsResponse
                                         Log.d(tag, "number of participants: ${partData.participants.size}")
-                                        // TODO update database with registration and update distances?
+                                        Globals.getDatabase()?.participantDao()?.addParticipants(partData.participants)
                                         val msg = Message()
                                         msg.what = msg_connection_participants
                                         handler.sendMessage(msg)

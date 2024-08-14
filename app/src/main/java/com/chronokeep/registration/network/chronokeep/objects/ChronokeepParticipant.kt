@@ -3,6 +3,7 @@ package com.chronokeep.registration.network.chronokeep.objects
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.Serializable
 
+@Suppress("unused", "PropertyName")
 @Serializable
 class ChronokeepParticipant (
     val id: String,

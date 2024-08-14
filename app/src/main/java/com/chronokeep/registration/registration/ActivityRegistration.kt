@@ -9,6 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.chronokeep.registration.R
 import com.chronokeep.registration.about.DialogFragmentAbout
 import com.chronokeep.registration.interfaces.ChronoActivity
+import com.chronokeep.registration.objects.database.DatabaseParticipant
+import com.chronokeep.registration.objects.registration.AddUpdateParticipantsRequest
+import com.chronokeep.registration.objects.registration.GetParticipantsRequest
+import com.chronokeep.registration.serverlist.DialogFragmentServerList
+import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 
 class ActivityRegistration: AppCompatActivity(), ChronoActivity {
@@ -44,6 +49,17 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         this.menu = menu
         menuInflater.inflate(R.menu.main, menu)
+        if (Globals.connected) {
+            menu?.findItem(R.id.menu_local)?.setVisible(true)
+        }
+        val database = Globals.getDatabase()
+        if (database != null) {
+            val token = database.settingDao().getSetting(Constants.setting_auth_token)
+            val refresh = database.settingDao().getSetting(Constants.setting_refresh_token)
+            if (token != null && refresh != null) {
+                menu?.findItem(R.id.menu_chronokeep)?.setVisible(true)
+            }
+        }
         return true
     }
 
@@ -62,6 +78,45 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity {
                     ft.remove(prev)
                 }
                 aboutFrag.show(ft, "fragment_about")
+                return true
+            }
+            R.id.upload_local -> {
+                Log.d(tag, "User wants to upload to local server.")
+                val toUpload = ArrayList<DatabaseParticipant>()
+                val database = Globals.getDatabase()
+                val fullList = database?.participantDao()?.getParticipants() ?: return true
+                for (part in fullList) {
+                    if (part.bib.isNotEmpty()) {
+                        toUpload.add(part)
+                    }
+                }
+                Globals.con?.sendAsyncMessage(AddUpdateParticipantsRequest(
+                    participants = toUpload
+                ).encode())
+                return true
+            }
+            R.id.download_local -> {
+                Log.d(tag, "User wants to download from local server.")
+                Globals.con?.sendAsyncMessage(GetParticipantsRequest().encode())
+                return true
+            }
+            R.id.upload_web -> {
+                Log.d(tag, "User wants to upload to Chronokeep.")
+                return true
+            }
+            R.id.download_web -> {
+                Log.d(tag, "User wants to download from Chronokeep.")
+                return true
+            }
+            R.id.menu_connect -> {
+                Log.d(tag, "User wants to connect.")
+                val connectFragment = DialogFragmentServerList()
+                val ft = supportFragmentManager.beginTransaction()
+                val prev = supportFragmentManager.findFragmentByTag("fragment_connect")
+                if (prev != null) {
+                    ft.remove(prev)
+                }
+                connectFragment.show(ft, "fragment_connect")
                 return true
             }
         }

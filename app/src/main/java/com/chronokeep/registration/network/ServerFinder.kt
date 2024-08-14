@@ -9,6 +9,7 @@ import java.net.DatagramPacket
 import java.net.InetAddress
 import java.net.MulticastSocket
 
+@Suppress("SpellCheckingInspection")
 class ServerFinder(mHandler: Handler): Runnable {
     companion object {
         @JvmStatic
