@@ -13,7 +13,7 @@ import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.registration.RegistrationError
 import com.chronokeep.registration.registration.ActivityRegistration
 import com.chronokeep.registration.util.Globals
-import com.chronokeep.registration.wait.FragmentWait
+import com.chronokeep.registration.wait.DialogFragmentWait
 import java.lang.ref.WeakReference
 
 class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activity?): Handler(looper) {
@@ -54,7 +54,7 @@ class ConnectionHandler(looper: Looper, frag: Fragment, private val act: Activit
             }
             Connection.msg_connection_open -> {
                 Log.d(tag, "Connection open.")
-                if (frag is FragmentWait) {
+                if (frag is DialogFragmentWait) {
                     Globals.connected = true
                     val intent = Intent(act, ActivityRegistration::class.java)
                     act?.startActivity(intent)

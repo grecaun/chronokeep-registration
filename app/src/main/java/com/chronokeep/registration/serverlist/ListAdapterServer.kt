@@ -11,11 +11,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
 import com.chronokeep.registration.list_items.Server
 
-class ListAdapterServer(val objects: MutableList<Server>, private val frag: FragmentServerList) :
+class ListAdapterServer(val objects: MutableList<Server>, private val frag: DialogFragmentServerList) :
     RecyclerView.Adapter<ListAdapterServer.ServerView>() {
     private val tag = "Chrono.SLA"
 
-    class ServerView(private val frag: FragmentServerList, view: View) : RecyclerView.ViewHolder(view), OnClickListener {
+    class ServerView(private val frag: DialogFragmentServerList, view: View) : RecyclerView.ViewHolder(view), OnClickListener {
         val nameView: TextView
         val idView: TextView
         var pos: Int = -1

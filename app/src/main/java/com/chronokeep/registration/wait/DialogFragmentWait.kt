@@ -6,16 +6,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.list_items.Server
 import com.chronokeep.registration.network.Connection
 import com.chronokeep.registration.network.ConnectionHandler
-import com.chronokeep.registration.serverlist.FragmentServerList
 import com.chronokeep.registration.util.Globals
 import java.net.InetAddress
 
-class FragmentWait(item: Server) : Fragment() {
+class DialogFragmentWait(item: Server) : DialogFragment() {
     private val tag = "Chrono.WaitFrag"
     var name: String = item.name
     private val address: InetAddress? = item.address

@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
@@ -19,11 +19,11 @@ import com.chronokeep.registration.list_items.Server
 import com.chronokeep.registration.network.ServerFinder
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
-import com.chronokeep.registration.wait.FragmentWait
+import com.chronokeep.registration.wait.DialogFragmentWait
 import com.chronokeep.registration.registration.DialogFragmentLogin
 import java.lang.ref.WeakReference
 
-class FragmentServerList : Fragment(), View.OnClickListener {
+class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
     private val tag = "Chrono.ConnectFragment"
 
     private var background: Thread? = null
@@ -99,23 +99,19 @@ class FragmentServerList : Fragment(), View.OnClickListener {
         } else if (view.tag == getString(R.string.tag_web)) {
             Log.d(tag, "Someone wants to connect to the web registration")
             serverFinder?.stop()
-            val database = Globals.getDatabase()!!
-            val token = database.settingDao().getSetting(Constants.setting_auth_token)
-            val refresh = database.settingDao().getSetting(Constants.setting_refresh_token)
-            val eventSlug = database.settingDao().getSetting(Constants.setting_event_slug)
-            val eventYear = database.settingDao().getSetting(Constants.setting_event_slug)
-            if (token != null && refresh != null && eventSlug != null) {
-                Toast.makeText(context, "Already logged in!", Toast.LENGTH_SHORT).show()
-                // TODO load activity after checking for participants, toast if not able to get participants
-            } else {
-                val loginFrag = DialogFragmentLogin()
-                val ft = parentFragmentManager.beginTransaction()
-                val prev = parentFragmentManager.findFragmentByTag("fragment_login")
-                if (prev != null) {
-                    ft.remove(prev)
-                }
-                loginFrag.show(ft, "fragment_login")
+            // TODO open login fragment
+            val loginFrag = DialogFragmentLogin()
+            val ft = parentFragmentManager.beginTransaction()
+            val prev = parentFragmentManager.findFragmentByTag("fragment_login")
+            if (prev != null) {
+                ft.remove(prev)
             }
+            val thisFrag = parentFragmentManager.findFragmentByTag("fragment_server_list")
+            if (thisFrag != null) {
+                ft.remove(thisFrag)
+            }
+            ft.addToBackStack(null)
+            loginFrag.show(ft, "fragment_login")
         }
     }
 
@@ -127,17 +123,20 @@ class FragmentServerList : Fragment(), View.OnClickListener {
         serverFinder?.stop()
         val item = serverListItems[position]
         Globals.uniqueToken = item.id
-        val nextFrag = FragmentWait(item)
+        val nextFrag = DialogFragmentWait(item)
         stopped = true
-        //parentFragmentManager.beginTransaction()
-        //    .replace(R.id.main_fragment_container, nextFrag)
-        //    .addToBackStack("main")
-        //    .commit()
+        val ft = parentFragmentManager.beginTransaction()
+        val thisFrag = parentFragmentManager.findFragmentByTag("fragment_server_list")
+        if (thisFrag != null) {
+            ft.remove(thisFrag)
+        }
+        ft.addToBackStack(null)
+        nextFrag.show(ft, "fragment_wait")
     }
 
     private class ServFindHandler(
         looper: Looper,
-        frag: FragmentServerList,
+        frag: DialogFragmentServerList,
         items: ArrayList<Server>,
         adapter: ListAdapterServer?
     ) : Handler(looper) {
