@@ -7,6 +7,8 @@ object Constants {
     const val zero_conf_multicast_address = "224.0.44.88"
 
     const val setting_username: String = "USERNAME"
+    const val setting_event_slug: String = "EVENT_SLUG"
+    const val setting_event_year: String = "EVENT_YEAR"
     const val setting_auth_token: String = "AUTH_TOKEN"
     const val setting_refresh_token: String = "REFRESH_TOKEN"
     const val setting_save_username: String = "SAVE_USERNAME"

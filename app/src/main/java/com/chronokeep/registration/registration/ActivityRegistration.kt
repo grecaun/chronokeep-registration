@@ -10,26 +10,23 @@ import android.view.MenuItem
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.about.DialogFragmentAbout
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.MenuWatcher
-import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.AddUpdateParticipantsRequest
 import com.chronokeep.registration.objects.registration.GetParticipantsRequest
 import com.chronokeep.registration.serverlist.DialogFragmentServerList
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
-import java.lang.ref.WeakReference
 
 class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     private val tag: String = "Chrono.RAct"
 
     private var menu: Menu? = null
 
-    private var mFrag: WeakReference<Fragment> = WeakReference<Fragment>(null)
+    private var pFrag: FragmentRegistrationParticipants? = null
 
     override fun getActivityTitle(): String {
         return supportActionBar?.title.toString()
@@ -46,7 +43,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
         Log.d(tag, "onCreate")
         if (savedInstanceState == null) {
             val frag = FragmentRegistrationParticipants()
-            mFrag = WeakReference(frag)
+            pFrag = frag
             supportFragmentManager.beginTransaction().replace(R.id.registration_fragment_container, frag).commit()
             setActivityTitle("Chronokeep Registration")
         }
@@ -137,8 +134,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.menu_connect -> {
                 Log.d(tag, "User wants to connect.")
-                val frag = mFrag.get()
-                val connectFragment = DialogFragmentServerList(frag!!)
+                val connectFragment = DialogFragmentServerList(pFrag!!)
                 val ft = supportFragmentManager.beginTransaction()
                 val prev = supportFragmentManager.findFragmentByTag("fragment_connect")
                 if (prev != null) {
@@ -167,11 +163,8 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     .setMessage(getString(R.string.permanent))
                     .setPositiveButton("Yes") { d: DialogInterface, _: Int ->
                         run {
-                            val frag = mFrag.get()
                             Globals.getDatabase()?.participantDao()?.deleteAllParticipants()
-                            if (frag is ParticipantsWatcher) {
-                                frag.updateParticipants()
-                            }
+                            pFrag?.updateParticipants()
                             d.dismiss()
                         }
                     }
