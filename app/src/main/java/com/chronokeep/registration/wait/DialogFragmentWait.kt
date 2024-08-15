@@ -7,13 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.list_items.Server
 import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.util.Globals
 import java.net.InetAddress
 
-class DialogFragmentWait(item: Server) : DialogFragment() {
+class DialogFragmentWait(
+    item: Server,
+    private val pFrag: Fragment
+) : DialogFragment() {
     private val tag = "Chrono.WaitFrag"
     var name: String = item.name
     private val address: InetAddress? = item.address
@@ -26,7 +30,8 @@ class DialogFragmentWait(item: Server) : DialogFragment() {
     ): View? {
         Log.d(tag, "onCreateView")
         if (this.address != null) {
-            val handler = ConnectionHandler(Looper.getMainLooper(), this)
+            Log.d(tag, "creating connection")
+            val handler = ConnectionHandler(Looper.getMainLooper(), this, pFrag)
             Globals.startConnection(address = this.address, port = this.port, handler = handler)
         }
         return inflater.inflate(R.layout.dialogfragment_wait, container, false)

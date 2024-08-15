@@ -7,6 +7,12 @@
         android:contentDescription="@string/connect"
         />
     <item
+        android:id="@+id/menu_clear"
+        android:orderInCategory="1"
+        android:title="@string/clear"
+        android:contentDescription="@string/clear"
+        />
+    <item
         android:id="@+id/menu_chronokeep"
         android:orderInCategory="1"
         android:title="@string/menu_chronokeep"

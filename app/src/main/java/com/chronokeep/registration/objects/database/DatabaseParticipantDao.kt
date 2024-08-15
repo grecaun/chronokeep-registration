@@ -26,4 +26,7 @@ interface DatabaseParticipantDao {
 
     @Delete
     fun deleteParticipants(parts: List<DatabaseParticipant>)
+
+    @Query("DELETE FROM participant")
+    fun deleteAllParticipants()
 }

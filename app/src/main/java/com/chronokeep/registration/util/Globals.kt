@@ -40,9 +40,7 @@ object Globals {
     }
 
     fun setConnectionHandler(handler: ConnectionHandler) {
-        if (con != null && con?.alive() == true) {
-            con?.setHandler(handler)
-        }
+        con?.setHandler(handler)
     }
 
     private var connected = false

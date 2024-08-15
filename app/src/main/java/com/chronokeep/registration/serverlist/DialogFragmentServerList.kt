@@ -10,7 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
@@ -21,7 +23,9 @@ import com.chronokeep.registration.wait.DialogFragmentWait
 import com.chronokeep.registration.registration.DialogFragmentLogin
 import java.lang.ref.WeakReference
 
-class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
+class DialogFragmentServerList(
+    private val pFrag: Fragment
+) : DialogFragment(), View.OnClickListener {
     private val tag = "Chrono.ConnectFragment"
 
     private var background: Thread? = null
@@ -110,7 +114,6 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         } else if (view.tag == getString(R.string.tag_web)) {
             Log.d(tag, "Someone wants to connect to the web registration")
             serverFinder?.stop()
-            // TODO open login fragment
             val loginFrag = DialogFragmentLogin()
             val ft = parentFragmentManager.beginTransaction()
             val prev = parentFragmentManager.findFragmentByTag("fragment_login")
@@ -121,8 +124,8 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
             if (thisFrag != null) {
                 ft.remove(thisFrag)
             }
-            this.dismiss()
             loginFrag.show(ft, "fragment_login")
+            this.dismiss()
         }
     }
 
@@ -134,15 +137,15 @@ class DialogFragmentServerList : DialogFragment(), View.OnClickListener {
         serverFinder?.stop()
         val item = serverListItems[position]
         Globals.uniqueToken = item.id
-        val nextFrag = DialogFragmentWait(item)
+        val nextFrag = DialogFragmentWait(item, pFrag)
         stopped = true
         val ft = parentFragmentManager.beginTransaction()
         val thisFrag = parentFragmentManager.findFragmentByTag("fragment_connect")
         if (thisFrag != null) {
             ft.remove(thisFrag)
         }
-        this.dismiss()
         nextFrag.show(ft, "fragment_wait")
+        this.dismiss()
     }
 
     private class ServFindHandler(

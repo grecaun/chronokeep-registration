@@ -72,7 +72,8 @@ class Connection(
     fun sendAsyncMessage(message: String) {
         ioScope.launch {
             withContext(Dispatchers.IO) {
-                val outBuf = ByteBuffer.allocate(2056)
+                val tmp = "$message\n".toByteArray()
+                val outBuf = ByteBuffer.allocate(tmp.size)
                 outBuf.put("$message\n".toByteArray())
                 outBuf.flip()
                 while (outBuf.hasRemaining()) {

@@ -2,27 +2,34 @@ package com.chronokeep.registration.registration
 
 import android.app.ActivityManager
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.about.DialogFragmentAbout
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.MenuWatcher
+import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.AddUpdateParticipantsRequest
 import com.chronokeep.registration.objects.registration.GetParticipantsRequest
 import com.chronokeep.registration.serverlist.DialogFragmentServerList
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
+import java.lang.ref.WeakReference
 
 class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     private val tag: String = "Chrono.RAct"
 
     private var menu: Menu? = null
+
+    private var mFrag: WeakReference<Fragment> = WeakReference<Fragment>(null)
 
     override fun getActivityTitle(): String {
         return supportActionBar?.title.toString()
@@ -38,7 +45,9 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
         setContentView(R.layout.activity_registration)
         Log.d(tag, "onCreate")
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.registration_fragment_container, FragmentRegistrationParticipants()).commit()
+            val frag = FragmentRegistrationParticipants()
+            mFrag = WeakReference(frag)
+            supportFragmentManager.beginTransaction().replace(R.id.registration_fragment_container, frag).commit()
             setActivityTitle("Chronokeep Registration")
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -90,17 +99,22 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.upload_local -> {
                 Log.d(tag, "User wants to upload to local server.")
-                val toUpload = ArrayList<DatabaseParticipant>()
-                val database = Globals.getDatabase()
-                val fullList = database?.participantDao()?.getParticipants() ?: return true
-                for (part in fullList) {
-                    if (part.bib.isNotEmpty()) {
-                        toUpload.add(part)
+                try {
+                    val toUpload = ArrayList<DatabaseParticipant>()
+                    val database = Globals.getDatabase()
+                    val fullList = database?.participantDao()?.getParticipants() ?: return true
+                    for (part in fullList) {
+                        if (part.bib.isNotEmpty()) {
+                            toUpload.add(part)
+                        }
                     }
+                    Globals.getConnection()?.sendAsyncMessage(AddUpdateParticipantsRequest(
+                        participants = toUpload
+                    ).encode())
+                } catch (e: Exception) {
+                    Log.d(tag, "Exception when sending message: ${e.message}")
+                    Globals.getConnection()?.stop()
                 }
-                Globals.getConnection()?.sendAsyncMessage(AddUpdateParticipantsRequest(
-                    participants = toUpload
-                ).encode())
                 return true
             }
             R.id.download_local -> {
@@ -123,7 +137,8 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.menu_connect -> {
                 Log.d(tag, "User wants to connect.")
-                val connectFragment = DialogFragmentServerList()
+                val frag = mFrag.get()
+                val connectFragment = DialogFragmentServerList(frag!!)
                 val ft = supportFragmentManager.beginTransaction()
                 val prev = supportFragmentManager.findFragmentByTag("fragment_connect")
                 if (prev != null) {
@@ -143,6 +158,29 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     item.setTitle(R.string.menu_unpin)
                 }
                 return true
+            }
+            R.id.menu_clear -> {
+                Log.d(tag, "User wants to clear participants.")
+                AlertDialog.Builder(this)
+                    .setIcon(R.drawable.baseline_delete_24)
+                    .setTitle("Warning!")
+                    .setMessage(getString(R.string.permanent))
+                    .setPositiveButton("Yes") { d: DialogInterface, _: Int ->
+                        run {
+                            val frag = mFrag.get()
+                            Globals.getDatabase()?.participantDao()?.deleteAllParticipants()
+                            if (frag is ParticipantsWatcher) {
+                                frag.updateParticipants()
+                            }
+                            d.dismiss()
+                        }
+                    }
+                    .setNegativeButton("No") { d: DialogInterface, _: Int ->
+                        run {
+                            d.dismiss()
+                        }
+                    }
+                    .show()
             }
         }
         return super.onOptionsItemSelected(item)

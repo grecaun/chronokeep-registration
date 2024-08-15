@@ -2,7 +2,6 @@ package com.chronokeep.registration.registration
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,6 @@ import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
-import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.AddParticipantRequest
 import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
@@ -98,7 +96,6 @@ class FragmentEditParticipant(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.getConnection()?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         return output
     }
 
@@ -140,6 +137,7 @@ class FragmentEditParticipant(
         if (gender.equals("other", true)) {
             gender = otherGender?.text.toString()
         }
+        Log.d(tag, "gender == $gender")
         return DatabaseParticipant(
             primary = participant.primary,
             id = participant.id,
@@ -158,12 +156,15 @@ class FragmentEditParticipant(
     override fun onClick(view: View?) {
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
-            if (participant.id.isEmpty()) {
+            Log.d(tag, "Submit clicked.")
+            if (participant.primary < 1 && participant.id.isEmpty()) {
+                Log.d(tag, "New participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
                 Globals.getConnection()?.sendAsyncMessage(AddParticipantRequest(
                     participant = fromFields()
                 ).encode())
             } else {
+                Log.d(tag, "Updating participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
                 Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
                     participant = fromFields()

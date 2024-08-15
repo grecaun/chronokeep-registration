@@ -2,7 +2,6 @@ package com.chronokeep.registration.registration
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,6 @@ import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
-import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
 import com.chronokeep.registration.util.Globals
@@ -67,7 +65,6 @@ class FragmentAssignParticipantBib(
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
-        Globals.getConnection()?.setHandler(ConnectionHandler(Looper.getMainLooper(), this))
         bib?.requestFocus()
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(bib, InputMethodManager.SHOW_IMPLICIT)

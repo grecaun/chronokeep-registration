@@ -14,10 +14,16 @@ import java.lang.ref.WeakReference
 
 class ConnectionHandler(
     looper: Looper,
-    frag: Fragment
+    frag: Fragment,
+    pFrag: Fragment
 ): Handler(looper) {
     private val tag = "Chrono.ConHandler"
-    private val mFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
+    private var mFrag: WeakReference<Fragment> = WeakReference<Fragment>(frag)
+    private val partFrag: WeakReference<Fragment> = WeakReference<Fragment>(pFrag)
+
+    private fun changeFrags() {
+        mFrag = partFrag
+    }
 
     override fun handleMessage(msg: Message) {
         val frag = mFrag.get() ?: return
@@ -28,6 +34,11 @@ class ConnectionHandler(
                     Globals.stopConnection()
                 } catch (_: Exception) {
                     Log.d(tag, "error closing connection")
+                }
+                if (frag is DialogFragmentWait) {
+                    Globals.getMenuWatcher()?.updateMenu()
+                    frag.dismiss()
+                    changeFrags()
                 }
             }
             Connection.msg_connection_unavailable -> {
@@ -40,6 +51,7 @@ class ConnectionHandler(
                 if (frag is DialogFragmentWait) {
                     Globals.getMenuWatcher()?.updateMenu()
                     frag.dismiss()
+                    changeFrags()
                 }
             }
             Connection.msg_connection_open -> {
@@ -48,6 +60,7 @@ class ConnectionHandler(
                     Globals.setConnected(true)
                     Globals.getMenuWatcher()?.updateMenu()
                     frag.dismiss()
+                    changeFrags()
                 }
             }
             Connection.msg_connection_success -> {
