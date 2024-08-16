@@ -6,7 +6,7 @@ import com.chronokeep.registration.network.chronokeep.requests.LoginRequest
 import com.chronokeep.registration.network.chronokeep.requests.RefreshTokenRequest
 import com.chronokeep.registration.network.chronokeep.requests.UpdateParticipantsRequest
 import com.chronokeep.registration.network.chronokeep.responses.AddParticipantsResponse
-import com.chronokeep.registration.network.chronokeep.responses.GetAccountResponse
+import com.chronokeep.registration.network.chronokeep.responses.GetAllEventYearsResponse
 import com.chronokeep.registration.network.chronokeep.responses.GetParticipantsResponse
 import com.chronokeep.registration.network.chronokeep.responses.LoginResponse
 import com.chronokeep.registration.network.chronokeep.responses.UpdateParticipantsResponse
@@ -18,8 +18,8 @@ import retrofit2.http.POST
 
 interface ChronokeepService {
     @Headers("Accept: application/json")
-    @POST("account")
-    fun getEvents(@Header("Authorization") auth: String): Call<GetAccountResponse>
+    @POST("r/event-year/all")
+    fun getEvents(@Header("Authorization") auth: String): Call<GetAllEventYearsResponse>
     @Headers("Accept: application/json")
     @POST("account/login")
     fun login(@Body dataModel: LoginRequest): Call<LoginResponse>

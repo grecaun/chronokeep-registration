@@ -8,7 +8,7 @@ import com.chronokeep.registration.network.chronokeep.requests.LoginRequest
 import com.chronokeep.registration.network.chronokeep.requests.RefreshTokenRequest
 import com.chronokeep.registration.network.chronokeep.requests.UpdateParticipantsRequest
 import com.chronokeep.registration.network.chronokeep.responses.AddParticipantsResponse
-import com.chronokeep.registration.network.chronokeep.responses.GetAccountResponse
+import com.chronokeep.registration.network.chronokeep.responses.GetAllEventYearsResponse
 import com.chronokeep.registration.network.chronokeep.responses.GetParticipantsResponse
 import com.chronokeep.registration.network.chronokeep.responses.LoginResponse
 import com.chronokeep.registration.network.chronokeep.responses.UpdateParticipantsResponse
@@ -70,18 +70,18 @@ class ChronokeepInterface {
     fun getEvents(
         token: String,
         refresh: String,
-        success: (response: GetAccountResponse?) -> Unit,
+        success: (response: GetAllEventYearsResponse?) -> Unit,
         failure: (message: String) -> Unit,
     ) {
         Log.d(tag, "Getting events.")
-        val call: Call<GetAccountResponse> = service.getEvents("Bearer $token")
-        call.enqueue(object: Callback<GetAccountResponse> {
+        val call: Call<GetAllEventYearsResponse> = service.getEvents("Bearer $token")
+        call.enqueue(object: Callback<GetAllEventYearsResponse> {
             override fun onResponse(
-                call: Call<GetAccountResponse>,
-                response: Response<GetAccountResponse>
+                call: Call<GetAllEventYearsResponse>,
+                response: Response<GetAllEventYearsResponse>
             ) {
                 if (response.isSuccessful) {
-                    val info: GetAccountResponse = response.body() as GetAccountResponse
+                    val info: GetAllEventYearsResponse = response.body() as GetAllEventYearsResponse
                     success(info)
                 } else if (response.code() == HTTP_STATUS_UNAUTHORIZED) {
                     val refreshCall: Call<LoginResponse> = service.refresh(RefreshTokenRequest(refresh))
@@ -96,22 +96,22 @@ class ChronokeepInterface {
                                     val settingsDao = Globals.getDatabase()!!.settingDao()
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_auth_token, loginInfo.access_token))
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_refresh_token, loginInfo.refresh_token))
-                                    val repeat: Call<GetAccountResponse> = service.getEvents("Bearer ${loginInfo.access_token}")
-                                    repeat.enqueue(object: Callback<GetAccountResponse> {
+                                    val repeat: Call<GetAllEventYearsResponse> = service.getEvents("Bearer ${loginInfo.access_token}")
+                                    repeat.enqueue(object: Callback<GetAllEventYearsResponse> {
                                         override fun onResponse(
-                                            call: Call<GetAccountResponse>,
-                                            response: Response<GetAccountResponse>
+                                            call: Call<GetAllEventYearsResponse>,
+                                            response: Response<GetAllEventYearsResponse>
                                         ) {
                                             if (response.isSuccessful) {
-                                                val info: GetAccountResponse =
-                                                    response.body() as GetAccountResponse
+                                                val info: GetAllEventYearsResponse =
+                                                    response.body() as GetAllEventYearsResponse
                                                 success(info)
                                             } else {
                                                 failure("Unable to get events. (0x22)")
                                             }
                                         }
 
-                                        override fun onFailure(call: Call<GetAccountResponse>, t: Throwable) {
+                                        override fun onFailure(call: Call<GetAllEventYearsResponse>, t: Throwable) {
                                             Log.d(tag, "error thrown: ${t.message}")
                                             failure("Unable to get events. (0x21)")
                                         }
@@ -136,7 +136,7 @@ class ChronokeepInterface {
                 }
             }
 
-            override fun onFailure(call: Call<GetAccountResponse>, t: Throwable) {
+            override fun onFailure(call: Call<GetAllEventYearsResponse>, t: Throwable) {
                 Log.d(tag, "error thrown: ${t.message}")
                 failure("Unable to get events. (0x01)")
             }
@@ -148,11 +148,12 @@ class ChronokeepInterface {
         token: String,
         refresh: String,
         slug: String,
+        year: String,
         success: (response: GetParticipantsResponse?) -> Unit,
         failure: (message: String) -> Unit,
     ) {
         Log.d(tag, "Getting participants.")
-        val call: Call<GetParticipantsResponse> = service.getParticipants("Bearer $token", GetParticipantsRequest(slug, null))
+        val call: Call<GetParticipantsResponse> = service.getParticipants("Bearer $token", GetParticipantsRequest(slug, year))
         call.enqueue(object: Callback<GetParticipantsResponse> {
             override fun onResponse(
                 call: Call<GetParticipantsResponse>,

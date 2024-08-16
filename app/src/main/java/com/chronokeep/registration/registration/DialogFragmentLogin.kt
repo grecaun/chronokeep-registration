@@ -19,7 +19,7 @@ import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
-import com.chronokeep.registration.network.chronokeep.objects.ChronokeepEvent
+import com.chronokeep.registration.network.chronokeep.objects.ChronokeepAllEventYear
 import com.chronokeep.registration.objects.database.Database
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import com.chronokeep.registration.objects.database.DatabaseSetting
@@ -46,7 +46,7 @@ class DialogFragmentLogin(
     private var eventsSpinner: Spinner? = null
     private var eventErrorView: TextView? = null
 
-    private val eventDict: HashMap<String, ChronokeepEvent> = HashMap()
+    private val eventDict: HashMap<String, ChronokeepAllEventYear> = HashMap()
 
     private var database: Database? = null
 
@@ -71,6 +71,7 @@ class DialogFragmentLogin(
         userNameView = output.findViewById(R.id.web_username)
         if (userNameIsSaved == Constants.setting_true) {
             userNameView?.setText(database?.settingDao()?.getSetting(Constants.setting_username)?.value)
+            passwordView?.setText(database?.settingDao()?.getSetting(Constants.setting_password)?.value)
         }
         passwordView = output.findViewById(R.id.web_password)
         loginInfoContainer = output.findViewById(R.id.login_info_container)
@@ -95,18 +96,19 @@ class DialogFragmentLogin(
         return output
     }
 
-    private val eventComparator = Comparator<ChronokeepEvent> { one, two ->
+    private val eventYearComparator = Comparator<ChronokeepAllEventYear> { one, two ->
         @Suppress("SpellCheckingInspection") val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        val oneDate = LocalDate.parse(one?.recent_time?.substring(0,19), dateTimeFormatter)
-        val twoDate = LocalDate.parse(two?.recent_time?.substring(0,19), dateTimeFormatter)
+        val oneDate = LocalDate.parse(one?.date_time?.substring(0,19), dateTimeFormatter)
+        val twoDate = LocalDate.parse(two?.date_time?.substring(0,19), dateTimeFormatter)
         twoDate.compareTo(oneDate)
     }
 
-    private fun getParticipants(access: String, refresh: String, slug: String) {
+    private fun getParticipants(access: String, refresh: String, slug: String, year: String) {
         chronokeep.getParticipants(
             access,
             refresh,
             slug,
+            year,
             @SuppressLint("SetTextI18n")
             { response ->
                 if (response != null) {
@@ -154,10 +156,11 @@ class DialogFragmentLogin(
                 if (response != null) {
                     eventDict.clear()
                     val eventNames = ArrayList<String>()
-                    val sortedEvents = response.events.sortedWith( eventComparator )
+                    val sortedEvents = response.years.sortedWith( eventYearComparator )
                     for (e in sortedEvents) {
-                        eventDict[e.name] = e
-                        eventNames.add(e.name)
+                        val name = "${e.year} ${e.name}"
+                        eventDict[name] = e
+                        eventNames.add(name)
                     }
                     val adapt = ArrayAdapter(
                         this.requireContext(),
@@ -228,9 +231,11 @@ class DialogFragmentLogin(
                                     if (saveUser) {
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_save_username, value=Constants.setting_true))
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_username, value=userNameView?.text.toString()))
+                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_password, value=passwordView?.text.toString()))
                                     } else {
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_save_username, value=Constants.setting_false))
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_username, value=""))
+                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_password, value=""))
                                     }
                                     // save token and refresh token
                                     settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=response.access_token))
@@ -266,13 +271,14 @@ class DialogFragmentLogin(
                     }
                     LoginState.EVENTS -> {
                         if (eventsSpinner?.selectedItem != null && eventDict.containsKey(eventsSpinner!!.selectedItem)) {
-                            val event = eventDict[eventsSpinner!!.selectedItem]!!
+                            val year = eventDict[eventsSpinner!!.selectedItem]!!
                             val settingsDao = database!!.settingDao()
-                            settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=event.slug))
+                            settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
+                            settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
                             val access = settingsDao.getSetting(name=Constants.setting_auth_token)
                             val refresh = settingsDao.getSetting(name=Constants.setting_refresh_token)
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
-                                getParticipants(access.value, refresh.value, event.slug)
+                                getParticipants(access.value, refresh.value, year.slug, year.year)
                             } else {
                                 // access tokens not set
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))

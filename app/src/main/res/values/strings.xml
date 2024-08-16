@@ -50,7 +50,7 @@
 
     <string name="tag_button">button</string>
     <string name="tag_web">webtag</string>
-    <string name="save_username">Save Email</string>
+    <string name="save_info">Save Login Information</string>
     <string name="username">Email</string>
     <string name="password">Password</string>
     <string name="logging_in">Logging in…</string>
