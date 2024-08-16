@@ -315,6 +315,7 @@ class ChronokeepInterface {
         success: (response: AddParticipantsResponse?) -> Unit,
         failure: (message: String) -> Unit
     ) {
+        Log.d(tag, "Adding participants.")
         val converted = ArrayList<ChronokeepParticipant>()
         for (part in participants) {
             converted.add(part.toChronokeepParticipant())

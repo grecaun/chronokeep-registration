@@ -11,7 +11,6 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -56,7 +55,6 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         list.sortWith(compareBy<DatabaseParticipant> { part -> part.last }.thenBy { part -> part.first } )
         participantsAdapter.objects = list
         participantsAdapter.notifyDataSetChanged()
-        Toast.makeText(context, "Participants fetched successfully.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateView(

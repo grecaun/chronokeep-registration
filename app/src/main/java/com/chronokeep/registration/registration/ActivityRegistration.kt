@@ -222,6 +222,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                 for (p in response.participants) {
                                     newParts.add(p.toDatabaseParticipant())
                                     Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                                    Globals.setRegistrationDistances()
                                     pFrag?.updateParticipants()
                                 }
                             } else {
@@ -272,6 +273,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     .setPositiveButton("Yes") { d: DialogInterface, _: Int ->
                         run {
                             Globals.getDatabase()?.participantDao()?.deleteAllParticipants()
+                            Globals.setRegistrationDistances()
                             pFrag?.updateParticipants()
                             d.dismiss()
                         }

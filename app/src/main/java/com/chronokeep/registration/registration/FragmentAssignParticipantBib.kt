@@ -11,7 +11,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ChronoActivity
@@ -31,9 +30,7 @@ class FragmentAssignParticipantBib(
     private var name: TextView? = null
     private var distance: TextView? = null
     private var bib: EditText? = null
-    private var sms: SwitchCompat? = null
     private var apparel: TextView? = null
-    private var mobile: EditText? = null
 
 
     override fun updateTitle() {
@@ -75,9 +72,7 @@ class FragmentAssignParticipantBib(
         name?.text = this.context?.getString(R.string.name_placeholder, participant.first, participant.last)
         distance?.text = participant.distance
         bib?.setText(participant.bib)
-        sms?.isChecked = participant.sms
         apparel?.text = participant.apparel
-        mobile?.setText(participant.mobile)
     }
 
     private fun fromFields(): DatabaseParticipant {
@@ -90,8 +85,8 @@ class FragmentAssignParticipantBib(
             birthdate = participant.birthdate,
             gender = participant.gender,
             distance = participant.distance,
-            mobile = mobile?.text.toString(),
-            sms = sms?.isChecked == true,
+            mobile = participant.mobile,
+            sms = false,
             apparel = participant.apparel,
         )
     }
