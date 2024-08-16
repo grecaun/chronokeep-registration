@@ -95,9 +95,9 @@ class FragmentAssignParticipantBib(
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
             Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
-            Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
+            /*Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
                 participant = fromFields()
-            ).encode())
+            ).encode())*/
             watcher.updateParticipants()
         }
         val fragmentManager = requireActivity().supportFragmentManager

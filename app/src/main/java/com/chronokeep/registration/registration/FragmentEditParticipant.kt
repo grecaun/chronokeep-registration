@@ -160,15 +160,15 @@ class FragmentEditParticipant(
             if (participant.primary < 1 && participant.id.isEmpty()) {
                 Log.d(tag, "New participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
-                Globals.getConnection()?.sendAsyncMessage(AddParticipantRequest(
+                /*Globals.getConnection()?.sendAsyncMessage(AddParticipantRequest(
                     participant = fromFields()
-                ).encode())
+                ).encode())*/
             } else {
                 Log.d(tag, "Updating participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
-                Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
+                /*Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
                     participant = fromFields()
-                ).encode())
+                ).encode())*/
             }
             watcher.updateParticipants()
         }
