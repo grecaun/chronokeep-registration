@@ -123,6 +123,8 @@ class DialogFragmentLogin(
                 } else {
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                     loadingContainer!!.visibility = View.GONE
                     loginInfoContainer!!.visibility = View.VISIBLE
                     eventsContainer!!.visibility = View.GONE
@@ -136,6 +138,8 @@ class DialogFragmentLogin(
             { message ->
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                 loadingContainer!!.visibility = View.GONE
                 loginInfoContainer!!.visibility = View.VISIBLE
                 eventsContainer!!.visibility = View.GONE
@@ -177,6 +181,8 @@ class DialogFragmentLogin(
                 } else {
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                     loadingContainer!!.visibility = View.GONE
                     loginInfoContainer!!.visibility = View.VISIBLE
                     eventsContainer!!.visibility = View.GONE
@@ -190,6 +196,8 @@ class DialogFragmentLogin(
             { message ->
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                 loadingContainer!!.visibility = View.GONE
                 loginInfoContainer!!.visibility = View.VISIBLE
                 eventsContainer!!.visibility = View.GONE
@@ -246,6 +254,8 @@ class DialogFragmentLogin(
                                 } else {
                                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                     loadingContainer!!.visibility = View.GONE
                                     loginInfoContainer!!.visibility = View.VISIBLE
                                     eventsContainer!!.visibility = View.GONE
@@ -260,6 +270,8 @@ class DialogFragmentLogin(
                                 // failure resets visibility
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE
@@ -273,19 +285,19 @@ class DialogFragmentLogin(
                     LoginState.EVENTS -> {
                         if (eventsSpinner?.selectedItem != null && eventDict.containsKey(eventsSpinner!!.selectedItem)) {
                             val year = eventDict[eventsSpinner!!.selectedItem]!!
-                            val settingsDao = database!!.settingDao()
-                            val access = settingsDao.getSetting(name=Constants.setting_auth_token)
-                            val refresh = settingsDao.getSetting(name=Constants.setting_refresh_token)
+                            val access = database?.settingDao()?.getSetting(name=Constants.setting_auth_token)
+                            val refresh = database?.settingDao()?.getSetting(name=Constants.setting_refresh_token)
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
-                                settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
-                                settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
                                 dismiss()
                                 //getParticipants(access.value, refresh.value, year.slug, year.year)
                             } else {
                                 // access tokens not set
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE

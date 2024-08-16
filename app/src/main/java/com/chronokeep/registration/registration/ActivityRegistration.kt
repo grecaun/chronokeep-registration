@@ -8,13 +8,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.chronokeep.registration.R
 import com.chronokeep.registration.about.DialogFragmentAbout
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.MenuWatcher
+import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
 import com.chronokeep.registration.objects.database.DatabaseParticipant
+import com.chronokeep.registration.objects.database.DatabaseSetting
 import com.chronokeep.registration.objects.registration.AddUpdateParticipantsRequest
 import com.chronokeep.registration.objects.registration.GetParticipantsRequest
 import com.chronokeep.registration.serverlist.DialogFragmentServerList
@@ -27,6 +30,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     private var menu: Menu? = null
 
     private var pFrag: FragmentRegistrationParticipants? = null
+    private val chronokeep = ChronokeepInterface.getInstance()
 
     override fun getActivityTitle(): String {
         return supportActionBar?.title.toString()
@@ -126,10 +130,114 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.upload_web -> {
                 Log.d(tag, "User wants to upload to Chronokeep.")
+                val settingDao = Globals.getDatabase()?.settingDao()
+                val access = settingDao?.getSetting(Constants.setting_auth_token)
+                val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
+                val slug = settingDao?.getSetting(Constants.setting_event_slug)
+                val year = settingDao?.getSetting(Constants.setting_event_year)
+                if (access != null && access.value.isNotEmpty()
+                    && refresh != null && refresh.value.isNotEmpty()
+                    && slug != null && slug.value.isNotEmpty()
+                    && year != null && year.value.isNotEmpty()) {
+                    val participants = Globals.getDatabase()?.participantDao()?.getParticipants()
+                    val updatedParticipants = ArrayList<DatabaseParticipant>()
+                    val newParticipants = ArrayList<DatabaseParticipant>()
+                    if (participants != null) {
+                        for (p in participants) {
+                            if (p.bib.isNotEmpty()) {
+                                if (p.id.isNotEmpty()) {
+                                    updatedParticipants.add(p)
+                                } else {
+                                    newParticipants.add(p)
+                                }
+                            }
+                        }
+                    }
+                    chronokeep.updateParticipant(
+                        access.value,
+                        refresh.value,
+                        slug.value,
+                        year.value,
+                        updatedParticipants,
+                        { response ->
+                            if (response != null) {
+                                Toast.makeText(applicationContext, "Update participants successful.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
+                                Toast.makeText(applicationContext, "Unknown response from server when updating participants.", Toast.LENGTH_SHORT).show()
+                                updateMenu()
+                            }
+                        },
+                        { message ->
+                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    chronokeep.addParticipant(
+                        access.value,
+                        refresh.value,
+                        slug.value,
+                        year.value,
+                        newParticipants,
+                        { response ->
+                            if (response != null) {
+                                Toast.makeText(applicationContext, "Add participants successful.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
+                                Toast.makeText(applicationContext, "Unknown response from server when adding participants.", Toast.LENGTH_SHORT).show()
+                                updateMenu()
+                            }
+                        },
+                        { message ->
+                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
                 return true
             }
             R.id.download_web -> {
                 Log.d(tag, "User wants to download from Chronokeep.")
+                val settingDao = Globals.getDatabase()?.settingDao()
+                val access = settingDao?.getSetting(Constants.setting_auth_token)
+                val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
+                val slug = settingDao?.getSetting(Constants.setting_event_slug)
+                val year = settingDao?.getSetting(Constants.setting_event_year)
+                if (access != null && access.value.isNotEmpty()
+                    && refresh != null && refresh.value.isNotEmpty()
+                    && slug != null && slug.value.isNotEmpty()
+                    && year != null && year.value.isNotEmpty()) {
+                    chronokeep.getParticipants(
+                        access.value,
+                        refresh.value,
+                        slug.value,
+                        year.value,
+                        { response ->
+                            if (response != null) {
+                                val newParts = ArrayList<DatabaseParticipant>()
+                                for (p in response.participants) {
+                                    newParts.add(p.toDatabaseParticipant())
+                                    Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                                    pFrag?.updateParticipants()
+                                }
+                            } else {
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
+                                Toast.makeText(applicationContext, "Unknown response from server.", Toast.LENGTH_SHORT).show()
+                                updateMenu()
+                            }
+                        },
+                        { message ->
+                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
                 return true
             }
             R.id.menu_connect -> {
