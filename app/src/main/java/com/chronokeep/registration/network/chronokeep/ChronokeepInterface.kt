@@ -55,11 +55,14 @@ class ChronokeepInterface {
                 if (response.isSuccessful) {
                     val info: LoginResponse = response.body() as LoginResponse
                     success(info)
+                } else {
+                    failure("Unable to login. (0x02)")
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                failure("Unable to log in.")
+                Log.d(tag, "error thrown: ${t.message}")
+                failure("Unable to login. (0x01)")
             }
         })
     }
@@ -104,36 +107,38 @@ class ChronokeepInterface {
                                                     response.body() as GetAccountResponse
                                                 success(info)
                                             } else {
-                                                failure("Unable to get events.")
+                                                failure("Unable to get events. (0x22)")
                                             }
                                         }
 
-                                        override fun onFailure(
-                                            call: Call<GetAccountResponse>,
-                                            t: Throwable
-                                        ) {
-                                            failure("Unable to get events.")
+                                        override fun onFailure(call: Call<GetAccountResponse>, t: Throwable) {
+                                            Log.d(tag, "error thrown: ${t.message}")
+                                            failure("Unable to get events. (0x21)")
                                         }
 
                                     })
                                 } catch (e: Exception) {
-                                    failure("Error with login info.")
+                                    failure("Error with login info. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info.")
+                                failure("Error with login info. (0x12)")
                             }
                         }
 
                         override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            failure("Error with login info.")
+                            Log.d(tag, "error thrown: ${t.message}")
+                            failure("Error with login info. (0x11)")
                         }
 
                     })
+                } else {
+                    failure("Invalid response from server. (0x02)")
                 }
             }
 
             override fun onFailure(call: Call<GetAccountResponse>, t: Throwable) {
-                failure("Unable to get events.")
+                Log.d(tag, "error thrown: ${t.message}")
+                failure("Unable to get events. (0x01)")
             }
 
         })
@@ -180,38 +185,38 @@ class ChronokeepInterface {
                                                     response.body() as GetParticipantsResponse
                                                 success(info)
                                             } else {
-                                                failure("Unable to get participants.")
+                                                failure("Unable to get participants. (0x22)")
                                             }
                                         }
 
-                                        override fun onFailure(
-                                            call: Call<GetParticipantsResponse>,
-                                            t: Throwable
-                                        ) {
-                                            failure("Unable to get participants.")
+                                        override fun onFailure(call: Call<GetParticipantsResponse>, t: Throwable) {
+                                            Log.d(tag, "error thrown: ${t.message}")
+                                            failure("Unable to get participants. (0x21)")
                                         }
 
                                     })
                                 } catch (e: Exception) {
-                                    failure("Error with login info.")
+                                    failure("Error with login info. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info.")
+                                failure("Error with login info. (0x12)")
                             }
                         }
 
                         override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            failure("Error with login info.")
+                            Log.d(tag, "error thrown: ${t.message}")
+                            failure("Error with login info. (0x11)")
                         }
 
                     })
                 } else {
-                    failure("Unable to get participants.")
+                    failure("Unable to get participants. (0x02)")
                 }
             }
 
             override fun onFailure(call: Call<GetParticipantsResponse>, t: Throwable) {
-                failure("Unable to get participants.")
+                Log.d(tag, "error thrown: ${t.message}")
+                failure("Unable to get participants. (0x01)")
             }
 
         })
@@ -263,38 +268,38 @@ class ChronokeepInterface {
                                                 val info: UpdateParticipantsResponse = response.body() as UpdateParticipantsResponse
                                                 success(info)
                                             } else {
-                                                failure("Unable to update participants.")
+                                                failure("Unable to update participants. (0x22)")
                                             }
                                         }
 
-                                        override fun onFailure(
-                                            call: Call<UpdateParticipantsResponse>,
-                                            t: Throwable
-                                        ) {
-                                            failure("Unable to update participants.")
+                                        override fun onFailure(call: Call<UpdateParticipantsResponse>, t: Throwable) {
+                                            Log.d(tag, "error thrown: ${t.message}")
+                                            failure("Unable to update participants. (0x21)")
                                         }
 
                                     })
                                 } catch (e: Exception) {
-                                    failure("Unable to update participants.")
+                                    failure("Unable to update participants. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info.")
+                                failure("Error with login info. (0x12)")
                             }
                         }
 
                         override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            failure("Error with login info.")
+                            Log.d(tag, "error thrown: ${t.message}")
+                            failure("Error with login info. (0x11)")
                         }
 
                     })
                 } else {
-                    failure("Unable to update participants.")
+                    failure("Unable to update participants. (0x02)")
                 }
             }
 
             override fun onFailure(call: Call<UpdateParticipantsResponse>, t: Throwable) {
-                failure("Unable to update participants.")
+                Log.d(tag, "error thrown: ${t.message}")
+                failure("Unable to update participants. (0x01)")
             }
         })
     }
@@ -344,38 +349,38 @@ class ChronokeepInterface {
                                                 val info: AddParticipantsResponse = response.body() as AddParticipantsResponse
                                                 success(info)
                                             } else {
-                                                failure("Unable to add participants.")
+                                                failure("Unable to add participants. (0x22)")
                                             }
                                         }
 
-                                        override fun onFailure(
-                                            call: Call<AddParticipantsResponse>,
-                                            t: Throwable
-                                        ) {
-                                            failure("Unable to add participants.")
+                                        override fun onFailure(call: Call<AddParticipantsResponse>, t: Throwable) {
+                                            Log.d(tag, "error thrown: ${t.message}")
+                                            failure("Unable to add participants. (0x21)")
                                         }
 
                                     })
                                 } catch (e: Exception) {
-                                    failure("Unable to add participants.")
+                                    failure("Unable to add participants. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info.")
+                                failure("Error with login info. (0x12)")
                             }
                         }
 
                         override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            failure("Error with login info.")
+                            Log.d(tag, "error thrown: ${t.message}")
+                            failure("Error with login info. (0x11)")
                         }
 
                     })
                 } else {
-                    failure("Unable to add participants.")
+                    failure("Unable to add participants. (0x02)")
                 }
             }
 
             override fun onFailure(call: Call<AddParticipantsResponse>, t: Throwable) {
-                failure("Unable to add participants.")
+                Log.d(tag, "error thrown: ${t.message}")
+                failure("Unable to add participants. (0x01)")
             }
         })
     }

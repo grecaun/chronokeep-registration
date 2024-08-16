@@ -26,6 +26,7 @@ import com.chronokeep.registration.objects.database.DatabaseSetting
 import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class DialogFragmentLogin(
     private val watcher: ParticipantsWatcher?
@@ -95,8 +96,9 @@ class DialogFragmentLogin(
     }
 
     private val eventComparator = Comparator<ChronokeepEvent> { one, two ->
-        val oneDate = LocalDate.parse(one?.recent_time)
-        val twoDate = LocalDate.parse(two?.recent_time)
+        @Suppress("SpellCheckingInspection") val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        val oneDate = LocalDate.parse(one?.recent_time?.substring(0,19), dateTimeFormatter)
+        val twoDate = LocalDate.parse(two?.recent_time?.substring(0,19), dateTimeFormatter)
         twoDate.compareTo(oneDate)
     }
 
@@ -114,13 +116,14 @@ class DialogFragmentLogin(
                     }
                     database?.participantDao()?.addParticipants(newParts)
                     watcher?.updateParticipants()
+                    dismiss()
                 } else {
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
                     loadingContainer!!.visibility = View.GONE
                     loginInfoContainer!!.visibility = View.VISIBLE
                     eventsContainer!!.visibility = View.GONE
-                    errorView?.text = "Error getting participants. Try again."
+                    errorView?.text = "Error getting participants. Try again. (0x04)"
                     errorView?.visibility = View.VISIBLE
                     submitButton!!.isEnabled = true
                     state = LoginState.USERNAME
@@ -128,13 +131,12 @@ class DialogFragmentLogin(
             },
             @SuppressLint("SetTextI18n")
             { message ->
-                Log.d(tag, "Error message: $message")
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
                 loadingContainer!!.visibility = View.GONE
                 loginInfoContainer!!.visibility = View.VISIBLE
                 eventsContainer!!.visibility = View.GONE
-                errorView?.text = "Error getting participants. Try again."
+                errorView?.text = message
                 errorView?.visibility = View.VISIBLE
                 submitButton!!.isEnabled = true
                 state = LoginState.USERNAME
@@ -174,7 +176,7 @@ class DialogFragmentLogin(
                     loadingContainer!!.visibility = View.GONE
                     loginInfoContainer!!.visibility = View.VISIBLE
                     eventsContainer!!.visibility = View.GONE
-                    errorView?.text = "Error getting events. Try again."
+                    errorView?.text = "Error getting events. Try again. (0x04)"
                     errorView?.visibility = View.VISIBLE
                     submitButton!!.isEnabled = true
                     state = LoginState.USERNAME
@@ -182,13 +184,12 @@ class DialogFragmentLogin(
             },
             @SuppressLint("SetTextI18n")
             { message ->
-                Log.d(tag, "Error message: $message")
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
                 loadingContainer!!.visibility = View.GONE
                 loginInfoContainer!!.visibility = View.VISIBLE
                 eventsContainer!!.visibility = View.GONE
-                errorView?.text = "Error getting events. Try again."
+                errorView?.text = message
                 errorView?.visibility = View.VISIBLE
                 submitButton!!.isEnabled = true
                 state = LoginState.USERNAME
@@ -242,7 +243,7 @@ class DialogFragmentLogin(
                                     loadingContainer!!.visibility = View.GONE
                                     loginInfoContainer!!.visibility = View.VISIBLE
                                     eventsContainer!!.visibility = View.GONE
-                                    errorView?.text = "Unable to login."
+                                    errorView?.text = "Invalid response from server. (0x04)"
                                     errorView?.visibility = View.VISIBLE
                                     submitButton!!.isEnabled = true
                                     state = LoginState.USERNAME
@@ -250,14 +251,13 @@ class DialogFragmentLogin(
                             },
                             @SuppressLint("SetTextI18n")
                             { message ->
-                                Log.d(tag, "Error message: $message")
                                 // failure resets visibility
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE
-                                errorView?.text = "Unable to login."
+                                errorView?.text = message
                                 errorView?.visibility = View.VISIBLE
                                 submitButton!!.isEnabled = true
                                 state = LoginState.USERNAME
@@ -281,7 +281,7 @@ class DialogFragmentLogin(
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE
-                                errorView?.text = "Error getting participants."
+                                errorView?.text = "Error getting participants. (0x04)"
                                 errorView?.visibility = View.VISIBLE
                                 submitButton!!.isEnabled = true
                                 state = LoginState.USERNAME
