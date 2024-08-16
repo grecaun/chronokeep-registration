@@ -19,6 +19,7 @@ import com.chronokeep.registration.util.Globals
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
+@Suppress("unused")
 class ChronokeepInterface {
     companion object {
         @Volatile

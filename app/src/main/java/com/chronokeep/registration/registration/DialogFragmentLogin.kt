@@ -103,6 +103,7 @@ class DialogFragmentLogin(
         twoDate.compareTo(oneDate)
     }
 
+    @Suppress("unused")
     private fun getParticipants(access: String, refresh: String, slug: String, year: String) {
         chronokeep.getParticipants(
             access,
@@ -273,12 +274,13 @@ class DialogFragmentLogin(
                         if (eventsSpinner?.selectedItem != null && eventDict.containsKey(eventsSpinner!!.selectedItem)) {
                             val year = eventDict[eventsSpinner!!.selectedItem]!!
                             val settingsDao = database!!.settingDao()
-                            settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
-                            settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
                             val access = settingsDao.getSetting(name=Constants.setting_auth_token)
                             val refresh = settingsDao.getSetting(name=Constants.setting_refresh_token)
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
-                                getParticipants(access.value, refresh.value, year.slug, year.year)
+                                settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
+                                settingsDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
+                                dismiss()
+                                //getParticipants(access.value, refresh.value, year.slug, year.year)
                             } else {
                                 // access tokens not set
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
