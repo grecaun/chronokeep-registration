@@ -22,8 +22,6 @@ import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.objects.database.DatabaseParticipant
-import com.chronokeep.registration.objects.registration.AddParticipantRequest
-import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
 import com.chronokeep.registration.util.Globals
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
