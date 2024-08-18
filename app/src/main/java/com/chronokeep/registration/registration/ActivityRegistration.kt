@@ -109,9 +109,13 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             toUpload.add(part)
                         }
                     }
-                    Globals.getConnection()?.sendAsyncMessage(AddUpdateParticipantsRequest(
-                        participants = toUpload
-                    ).encode())
+                    if (toUpload.isNotEmpty()) {
+                        Globals.getConnection()?.sendAsyncMessage(
+                            AddUpdateParticipantsRequest(
+                                participants = toUpload
+                            ).encode()
+                        )
+                    }
                 } catch (e: Exception) {
                     Log.d(tag, "Exception when sending message: ${e.message}")
                     Globals.getConnection()?.stop()
