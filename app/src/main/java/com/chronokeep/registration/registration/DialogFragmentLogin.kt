@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
+import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
 import com.chronokeep.registration.network.chronokeep.objects.ChronokeepAllEventYear
@@ -29,7 +30,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class DialogFragmentLogin(
-    private val watcher: ParticipantsWatcher?
+    private val participantsWatcher: ParticipantsWatcher?,
+    private val menuWatcher: MenuWatcher?
 ) : DialogFragment(), OnClickListener {
     private val tag: String = "Chrono.Login"
 
@@ -118,7 +120,8 @@ class DialogFragmentLogin(
                         newParts.add(p.toDatabaseParticipant())
                     }
                     database?.participantDao()?.addParticipants(newParts)
-                    watcher?.updateParticipants()
+                    participantsWatcher?.updateParticipants()
+                    menuWatcher?.updateMenu()
                     dismiss()
                 } else {
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))

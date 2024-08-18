@@ -14,6 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chronokeep.registration.R
+import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.list_items.Server
 import com.chronokeep.registration.network.ServerFinder
 import com.chronokeep.registration.util.Globals
@@ -23,7 +24,8 @@ import com.chronokeep.registration.registration.FragmentRegistrationParticipants
 import java.lang.ref.WeakReference
 
 class DialogFragmentServerList(
-    private val pFrag: FragmentRegistrationParticipants
+    private val pFrag: FragmentRegistrationParticipants,
+    private val menuWatcher: MenuWatcher
 ) : DialogFragment(), View.OnClickListener {
     private val tag = "Chrono.ConnectFragment"
 
@@ -113,7 +115,7 @@ class DialogFragmentServerList(
         } else if (view.tag == getString(R.string.tag_web)) {
             Log.d(tag, "Someone wants to connect to the web registration")
             serverFinder?.stop()
-            val loginFrag = DialogFragmentLogin(pFrag)
+            val loginFrag = DialogFragmentLogin(pFrag, menuWatcher)
             val ft = parentFragmentManager.beginTransaction()
             val prev = parentFragmentManager.findFragmentByTag("fragment_login")
             if (prev != null) {

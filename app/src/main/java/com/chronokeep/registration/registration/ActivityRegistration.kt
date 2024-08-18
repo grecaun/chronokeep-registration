@@ -153,50 +153,112 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             }
                         }
                     }
-                    chronokeep.updateParticipant(
-                        access.value,
-                        refresh.value,
-                        slug.value,
-                        year.value,
-                        updatedParticipants,
-                        { response ->
-                            if (response != null) {
-                                Toast.makeText(applicationContext, "Update participants successful.", Toast.LENGTH_SHORT).show()
-                            } else {
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
-                                Toast.makeText(applicationContext, "Unknown response from server when updating participants.", Toast.LENGTH_SHORT).show()
-                                updateMenu()
+                    if (updatedParticipants.isNotEmpty()) {
+                        chronokeep.updateParticipant(
+                            access.value,
+                            refresh.value,
+                            slug.value,
+                            year.value,
+                            updatedParticipants,
+                            { response ->
+                                if (response != null) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Update participants successful.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_auth_token,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_refresh_token,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_event_slug,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_event_year,
+                                            value = ""
+                                        )
+                                    )
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Unknown response from server when updating participants.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    updateMenu()
+                                }
+                            },
+                            { message ->
+                                Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT)
+                                    .show()
                             }
-                        },
-                        { message ->
-                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                    chronokeep.addParticipant(
-                        access.value,
-                        refresh.value,
-                        slug.value,
-                        year.value,
-                        newParticipants,
-                        { response ->
-                            if (response != null) {
-                                Toast.makeText(applicationContext, "Add participants successful.", Toast.LENGTH_SHORT).show()
-                            } else {
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                                settingDao.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
-                                Toast.makeText(applicationContext, "Unknown response from server when adding participants.", Toast.LENGTH_SHORT).show()
-                                updateMenu()
+                        )
+                    }
+                    if (newParticipants.isNotEmpty()) {
+                        chronokeep.addParticipant(
+                            access.value,
+                            refresh.value,
+                            slug.value,
+                            year.value,
+                            newParticipants,
+                            { response ->
+                                if (response != null) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Add participants successful.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_auth_token,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_refresh_token,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_event_slug,
+                                            value = ""
+                                        )
+                                    )
+                                    settingDao.addSetting(
+                                        DatabaseSetting(
+                                            name = Constants.setting_event_year,
+                                            value = ""
+                                        )
+                                    )
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Unknown response from server when adding participants.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    updateMenu()
+                                }
+                            },
+                            { message ->
+                                Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT)
+                                    .show()
                             }
-                        },
-                        { message ->
-                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-                        }
-                    )
+                        )
+                    }
                 }
                 return true
             }
@@ -243,7 +305,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.menu_connect -> {
                 Log.d(tag, "User wants to connect.")
-                val connectFragment = DialogFragmentServerList(pFrag!!)
+                val connectFragment = DialogFragmentServerList(pFrag!!, this)
                 val ft = supportFragmentManager.beginTransaction()
                 val prev = supportFragmentManager.findFragmentByTag("fragment_connect")
                 if (prev != null) {
