@@ -150,11 +150,13 @@ class ChronokeepInterface {
         refresh: String,
         slug: String,
         year: String,
+        limit: Int,
+        page: Int,
         success: (response: GetParticipantsResponse?) -> Unit,
         failure: (message: String) -> Unit,
     ) {
         Log.d(tag, "Getting participants.")
-        val call: Call<GetParticipantsResponse> = service.getParticipants("Bearer $token", GetParticipantsRequest(slug, year))
+        val call: Call<GetParticipantsResponse> = service.getParticipants("Bearer $token", GetParticipantsRequest(slug, year, limit, page))
         call.enqueue(object: Callback<GetParticipantsResponse> {
             override fun onResponse(
                 call: Call<GetParticipantsResponse>,
@@ -176,7 +178,7 @@ class ChronokeepInterface {
                                     val settingsDao = Globals.getDatabase()!!.settingDao()
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_auth_token, loginInfo.access_token))
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_refresh_token, loginInfo.refresh_token))
-                                    val repeat: Call<GetParticipantsResponse> = service.getParticipants("Bearer ${loginInfo.access_token}", GetParticipantsRequest(slug, null))
+                                    val repeat: Call<GetParticipantsResponse> = service.getParticipants("Bearer ${loginInfo.access_token}", GetParticipantsRequest(slug, year, limit, page))
                                     repeat.enqueue(object: Callback<GetParticipantsResponse> {
                                         override fun onResponse(
                                             call: Call<GetParticipantsResponse>,

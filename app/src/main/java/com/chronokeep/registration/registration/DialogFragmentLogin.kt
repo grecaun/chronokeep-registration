@@ -105,55 +105,6 @@ class DialogFragmentLogin(
         twoDate.compareTo(oneDate)
     }
 
-    @Suppress("unused")
-    private fun getParticipants(access: String, refresh: String, slug: String, year: String) {
-        chronokeep.getParticipants(
-            access,
-            refresh,
-            slug,
-            year,
-            @SuppressLint("SetTextI18n")
-            { response ->
-                if (response != null) {
-                    val newParts = ArrayList<DatabaseParticipant>()
-                    for (p in response.participants) {
-                        newParts.add(p.toDatabaseParticipant())
-                    }
-                    database?.participantDao()?.addParticipants(newParts)
-                    participantsWatcher?.updateParticipants()
-                    menuWatcher?.updateMenu()
-                    dismiss()
-                } else {
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
-                    loadingContainer!!.visibility = View.GONE
-                    loginInfoContainer!!.visibility = View.VISIBLE
-                    eventsContainer!!.visibility = View.GONE
-                    errorView?.text = "Error getting participants. Try again. (0x04)"
-                    errorView?.visibility = View.VISIBLE
-                    submitButton!!.isEnabled = true
-                    state = LoginState.USERNAME
-                }
-            },
-            @SuppressLint("SetTextI18n")
-            { message ->
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
-                loadingContainer!!.visibility = View.GONE
-                loginInfoContainer!!.visibility = View.VISIBLE
-                eventsContainer!!.visibility = View.GONE
-                errorView?.text = message
-                errorView?.visibility = View.VISIBLE
-                submitButton!!.isEnabled = true
-                state = LoginState.USERNAME
-            }
-        )
-    }
-
     private fun getEvents(access: String, refresh: String) {
         chronokeep.getEvents(
             access,
