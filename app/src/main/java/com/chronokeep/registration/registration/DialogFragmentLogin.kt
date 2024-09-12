@@ -244,6 +244,7 @@ class DialogFragmentLogin(
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
+                                menuWatcher?.updateMenu()
                                 dismiss()
                                 //getParticipants(access.value, refresh.value, year.slug, year.year)
                             } else {
