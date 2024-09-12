@@ -56,9 +56,11 @@
     <string name="logging_in">Logging in…</string>
     <string name="select_event">Select an event:</string>
 
-    <string name="about_version">v0.1.1</string>
+    <string name="about_version">v0.0.0</string>
     <string name="about_created_by">Created By</string>
     <string name="about_creator_name">James Sentinella</string>
+
+    <string name="logout">Logout</string>
 
     <string name="seen">#</string>
     <string name="bib">Bib</string>

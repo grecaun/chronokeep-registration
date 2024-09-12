@@ -71,11 +71,11 @@ class DialogFragmentLogin(
         val userNameIsSaved = database?.settingDao()?.getSetting(Constants.setting_save_username)?.value
         saveUsername?.isChecked = userNameIsSaved == Constants.setting_true
         userNameView = output.findViewById(R.id.web_username)
+        passwordView = output.findViewById(R.id.web_password)
         if (userNameIsSaved == Constants.setting_true) {
             userNameView?.setText(database?.settingDao()?.getSetting(Constants.setting_username)?.value)
             passwordView?.setText(database?.settingDao()?.getSetting(Constants.setting_password)?.value)
         }
-        passwordView = output.findViewById(R.id.web_password)
         loginInfoContainer = output.findViewById(R.id.login_info_container)
         loadingContainer = output.findViewById(R.id.loading_container)
         eventsContainer = output.findViewById(R.id.events_container)
@@ -193,8 +193,8 @@ class DialogFragmentLogin(
                                     // save username if set to save
                                     if (saveUser) {
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_save_username, value=Constants.setting_true))
-                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_username, value=userNameView?.text.toString()))
-                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_password, value=passwordView?.text.toString()))
+                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_username, value=email))
+                                        settingDao.addSetting(DatabaseSetting(name=Constants.setting_password, value=pass))
                                     } else {
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_save_username, value=Constants.setting_false))
                                         settingDao.addSetting(DatabaseSetting(name=Constants.setting_username, value=""))

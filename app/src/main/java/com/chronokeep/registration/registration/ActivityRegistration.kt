@@ -257,6 +257,15 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     }
                     .show()
             }
+            R.id.logout_web -> {
+                Log.d(tag, "User wants to logout of chronokeep.")
+                val settingDao = Globals.getDatabase()?.settingDao()
+                settingDao?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
+                settingDao?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                settingDao?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
+                settingDao?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
+                updateMenu()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -264,13 +273,21 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     override fun updateMenu() {
         if (Globals.isConnected()) {
             menu?.findItem(R.id.menu_local)?.setVisible(true)
+        } else {
+            menu?.findItem(R.id.menu_local)?.setVisible(false)
         }
         val database = Globals.getDatabase()
         if (database != null) {
             val token = database.settingDao().getSetting(Constants.setting_auth_token)
             val refresh = database.settingDao().getSetting(Constants.setting_refresh_token)
-            if (token != null && refresh != null) {
+            if (token != null
+                && token.value.isNotEmpty()
+                && refresh != null
+                && refresh.value.isNotEmpty()
+            ) {
                 menu?.findItem(R.id.menu_chronokeep)?.setVisible(true)
+            } else {
+                menu?.findItem(R.id.menu_chronokeep)?.setVisible(false)
             }
         }
     }
@@ -300,6 +317,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                         }
                         Log.d(tag, "${response.participants.size} participants downloaded. ${(page * 50) - 50 + response.participants.size} total participants downloaded.")
+                        Toast.makeText(applicationContext, "${(page * 50) - 50 + response.participants.size} participants downloaded.", Toast.LENGTH_SHORT).show()
                         if (response.participants.size == 50) {
                             downloadParticipants(page + 1)
                         } else {
