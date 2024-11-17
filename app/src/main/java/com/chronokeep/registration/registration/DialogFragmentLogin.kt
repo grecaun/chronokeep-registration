@@ -30,8 +30,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class DialogFragmentLogin(
-    private val participantsWatcher: ParticipantsWatcher?,
-    private val menuWatcher: MenuWatcher?
+    private val participantsWatcher: ParticipantsWatcher?
 ) : DialogFragment(), OnClickListener {
     private val tag: String = "Chrono.Login"
 
@@ -135,8 +134,6 @@ class DialogFragmentLogin(
                 } else {
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                     loadingContainer!!.visibility = View.GONE
                     loginInfoContainer!!.visibility = View.VISIBLE
                     eventsContainer!!.visibility = View.GONE
@@ -150,8 +147,6 @@ class DialogFragmentLogin(
             { message ->
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                 loadingContainer!!.visibility = View.GONE
                 loginInfoContainer!!.visibility = View.VISIBLE
                 eventsContainer!!.visibility = View.GONE
@@ -208,8 +203,6 @@ class DialogFragmentLogin(
                                 } else {
                                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                     database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                                    database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                     loadingContainer!!.visibility = View.GONE
                                     loginInfoContainer!!.visibility = View.VISIBLE
                                     eventsContainer!!.visibility = View.GONE
@@ -224,8 +217,6 @@ class DialogFragmentLogin(
                                 // failure resets visibility
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE
@@ -242,17 +233,12 @@ class DialogFragmentLogin(
                             val access = database?.settingDao()?.getSetting(name=Constants.setting_auth_token)
                             val refresh = database?.settingDao()?.getSetting(name=Constants.setting_refresh_token)
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=year.slug))
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=year.year))
-                                menuWatcher?.updateMenu()
+                                downloadParticipants(1, access.value, refresh.value, year.slug, year.year, year.name)
                                 dismiss()
-                                //getParticipants(access.value, refresh.value, year.slug, year.year)
                             } else {
                                 // access tokens not set
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                 database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_slug, value=""))
-                                database?.settingDao()?.addSetting(DatabaseSetting(name=Constants.setting_event_year, value=""))
                                 loadingContainer!!.visibility = View.GONE
                                 loginInfoContainer!!.visibility = View.VISIBLE
                                 eventsContainer!!.visibility = View.GONE
@@ -277,5 +263,43 @@ class DialogFragmentLogin(
                 dialog?.dismiss()
             }
         }
+    }
+
+    private fun downloadParticipants(page: Int, access: String, refresh: String, slug: String, year: String, name: String) {
+        chronokeep.getParticipants(
+            access,
+            refresh,
+            slug,
+            year,
+            50,
+            page,
+            { response ->
+                if (response != null) {
+                    val newParts = ArrayList<DatabaseParticipant>()
+                    for (p in response.participants) {
+                        newParts.add(p.toDatabaseParticipant("$slug,$year,$name"))
+                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                    }
+                    Log.d(tag, "${response.participants.size} participants downloaded. ${(page * 50) - 50 + response.participants.size} total participants downloaded. `$slug,$year,$name`")
+                    Toast.makeText(context, "${(page * 50) - 50 + response.participants.size} participants downloaded.", Toast.LENGTH_SHORT).show()
+                    if (response.participants.size == 50) {
+                        downloadParticipants(page + 1, access, refresh, slug, year, name)
+                    } else {
+                        Globals.setRegistrationDistances()
+                        participantsWatcher?.updateParticipants()
+                    }
+                } else {
+                    val settingDao = Globals.getDatabase()?.settingDao()
+                    settingDao?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
+                    settingDao?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
+                    Toast.makeText(context, "Unknown response from server.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                Globals.setRegistrationDistances()
+                participantsWatcher?.updateParticipants()
+            }
+        )
     }
 }

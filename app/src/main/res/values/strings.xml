@@ -12,7 +12,7 @@
     <string name="menu_download_web">Download</string>
     <string name="menu_upload_local">Upload</string>
     <string name="menu_download_local">Download</string>
-    <string name="connect">Connect</string>
+    <string name="connect">Connect to Local Server</string>
     <string name="wait_connecting">Attempting to connect to server.</string>
     <string name="wait_wait">Please wait.</string>
     <string name="clear">Clear Participants</string>
@@ -76,6 +76,7 @@
 
     <string name="manual_entry">Manual Entry</string>
     <string name="age_gender">Age:Gender</string>
+    <string name="event">Event</string>
     <string name="distance">Distance</string>
     <string name="sightings">Sightings</string>
     <string name="new_string">New</string>

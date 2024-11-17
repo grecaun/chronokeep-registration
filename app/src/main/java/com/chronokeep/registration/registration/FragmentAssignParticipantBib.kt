@@ -88,6 +88,7 @@ class FragmentAssignParticipantBib(
             mobile = participant.mobile,
             sms = false,
             apparel = participant.apparel,
+            chronokeep_info = participant.chronokeep_info
         )
     }
 

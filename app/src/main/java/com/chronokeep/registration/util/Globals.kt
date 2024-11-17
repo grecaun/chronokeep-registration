@@ -14,6 +14,7 @@ object Globals {
     class RegistrationInfo {
         var error = RegistrationError.NONE
         val distances = HashSet<String>()
+        val chronokeepInfoSet = HashSet<String>()
     }
 
     // Connection and thread for dealing with our open connection.
@@ -83,7 +84,7 @@ object Globals {
             database = Room.databaseBuilder(context, Database::class.java, "chronokeep-control").allowMainThreadQueries().build()
         }
         val participants = database?.participantDao()?.getParticipants()
-        synchronized(registration.distances) {
+        synchronized(registration) {
             registration.distances.clear()
             if (participants != null) {
                 for (part in participants) {
@@ -96,11 +97,12 @@ object Globals {
     // Registration information getters and setters
     fun setRegistrationDistances() {
         val participants = database?.participantDao()?.getParticipants()
-        synchronized(registration.distances) {
+        synchronized(registration) {
             registration.distances.clear()
             if (participants != null) {
                 for (part in participants) {
                     registration.distances.add(part.distance)
+                    registration.chronokeepInfoSet.add(part.chronokeep_info)
                 }
             }
         }
@@ -108,21 +110,29 @@ object Globals {
 
     fun getRegistrationDistances(): ArrayList<String> {
         val output: ArrayList<String>
-        synchronized(registration.distances) {
+        synchronized(registration) {
             output = ArrayList(registration.distances)
         }
         return output
     }
 
+    fun getRegistrationYears(): ArrayList<String> {
+        val output: ArrayList<String>
+        synchronized(registration) {
+            output = ArrayList(registration.chronokeepInfoSet)
+        }
+        return output
+    }
+
     fun setRegistrationError(err: RegistrationError) {
-        synchronized(registration.error) {
+        synchronized(registration) {
             registration.error = err
         }
     }
 
     fun getRegistrationError(): RegistrationError {
         val output: RegistrationError
-        synchronized(registration.error) {
+        synchronized(registration) {
             output = registration.error
         }
         return output

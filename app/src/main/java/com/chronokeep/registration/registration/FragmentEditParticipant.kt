@@ -14,6 +14,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -33,6 +34,8 @@ class FragmentEditParticipant(
     Fragment(), OnClickListener, ParticipantsWatcher, ChronoFragment {
     private val tag: String = "Chrono.EditPartDia"
 
+    private var eventHolder: LinearLayout? = null
+    private var event: Spinner? = null
     private var distance: Spinner? = null
     private var bib: EditText? = null
     private var first: EditText? = null
@@ -40,9 +43,12 @@ class FragmentEditParticipant(
     private var gender: Spinner? = null
     private var otherGender: EditText? = null
     private var birthdate: EditText? = null
+    private var eventAdapter: ArrayAdapter<String>? = null
     private var distanceAdapter: ArrayAdapter<String>? = null
     private var genderAdapter: ArrayAdapter<CharSequence>? = null
     private var apparel: TextView? = null
+
+    private var chronokeepInfoDict: HashMap<String, String> = HashMap()
 
     override fun updateTitle() {
         val act = activity as ChronoActivity?
@@ -61,6 +67,8 @@ class FragmentEditParticipant(
         savedInstanceState: Bundle?
     ): View? {
         val output = inflater.inflate(R.layout.dialogfragment_registration_edit_participant, container, false)
+        eventHolder = output.findViewById(R.id.event_wrapper)
+        event = output.findViewById(R.id.edit_participant_event)
         distance = output.findViewById(R.id.edit_participant_distance)
         bib = output.findViewById(R.id.edit_participant_bib)
         first = output.findViewById(R.id.edit_participant_first_name)
@@ -99,6 +107,35 @@ class FragmentEditParticipant(
 
     @SuppressLint("SetTextI18n")
     private fun updateFields() {
+        chronokeepInfoDict.clear()
+        for (info: String in Globals.getRegistrationYears()) {
+            val splitInfo = info.split(",")
+            if (splitInfo.size > 2) {
+                chronokeepInfoDict["${splitInfo[1]} ${splitInfo[2]}"] = info
+            }
+        }
+        val infoVals = ArrayList(chronokeepInfoDict.keys)
+        if (infoVals.size < 1) {
+            infoVals.add("local")
+        }
+        eventAdapter = ArrayAdapter(
+            this.requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            infoVals
+        )
+        event?.adapter = eventAdapter
+        event?.setSelection(0)
+        for (info: String in infoVals) {
+            if (chronokeepInfoDict[info] == participant.chronokeep_info
+                && eventAdapter!!.getPosition(info) >= 0) {
+                event?.setSelection(eventAdapter!!.getPosition(info))
+            }
+        }
+        if (infoVals.size > 1) {
+            eventHolder?.visibility = VISIBLE
+        } else {
+            //eventHolder?.visibility = GONE
+        }
         distanceAdapter = ArrayAdapter(
             this.requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -135,6 +172,10 @@ class FragmentEditParticipant(
         if (gender.equals("other", true)) {
             gender = otherGender?.text.toString()
         }
+        var info = event?.selectedItem.toString()
+        if (chronokeepInfoDict.containsKey(info)) {
+            info = chronokeepInfoDict[info]!!
+        }
         Log.d(tag, "gender == $gender")
         return DatabaseParticipant(
             primary = participant.primary,
@@ -148,6 +189,7 @@ class FragmentEditParticipant(
             mobile = participant.mobile,
             sms = participant.sms,
             apparel = participant.apparel,
+            chronokeep_info = info
         )
     }
 

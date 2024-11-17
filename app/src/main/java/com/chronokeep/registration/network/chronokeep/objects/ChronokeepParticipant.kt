@@ -19,7 +19,7 @@ class ChronokeepParticipant (
     val mobile: String,
     val apparel: String,
 ) {
-    fun toDatabaseParticipant(): DatabaseParticipant {
+    fun toDatabaseParticipant(chronokeepInfo: String): DatabaseParticipant {
         return DatabaseParticipant(
             id = id,
             bib = bib,
@@ -31,6 +31,7 @@ class ChronokeepParticipant (
             sms = sms_enabled,
             mobile = mobile,
             apparel = apparel,
+            chronokeep_info = chronokeepInfo,
         )
     }
 }

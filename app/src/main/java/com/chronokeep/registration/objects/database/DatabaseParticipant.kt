@@ -12,7 +12,7 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Serializable
-@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate"], unique = true)])
+@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate", "chronokeep_info"], unique = true)])
 class DatabaseParticipant (
     @Transient @PrimaryKey(autoGenerate = true) @ColumnInfo(name="row_id") val primary: Int = 0,
     @ColumnInfo(name="registration_id") val id: String,
@@ -25,6 +25,7 @@ class DatabaseParticipant (
     @ColumnInfo(name="mobile") val mobile: String,
     @ColumnInfo(name="sms_enabled") val sms: Boolean,
     @ColumnInfo(name="apparel") val apparel: String,
+    @ColumnInfo(name="chronokeep_info") val chronokeep_info: String,
 ) {
     fun age(): String {
         return Period.between(

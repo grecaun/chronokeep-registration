@@ -17,7 +17,6 @@
         android:orderInCategory="1"
         android:title="@string/menu_chronokeep"
         android:contentDescription="@string/connect"
-        android:visible="false"
         >
         <menu>
             <item

@@ -99,7 +99,8 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 birthdate = "",
                 mobile = "",
                 sms = false,
-                apparel = ""
+                apparel = "",
+                chronokeep_info = ""
             ),
             this
         )

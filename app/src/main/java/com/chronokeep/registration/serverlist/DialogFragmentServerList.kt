@@ -24,8 +24,7 @@ import com.chronokeep.registration.registration.FragmentRegistrationParticipants
 import java.lang.ref.WeakReference
 
 class DialogFragmentServerList(
-    private val pFrag: FragmentRegistrationParticipants,
-    private val menuWatcher: MenuWatcher
+    private val pFrag: FragmentRegistrationParticipants
 ) : DialogFragment(), View.OnClickListener {
     private val tag = "Chrono.ConnectFragment"
 
@@ -69,7 +68,6 @@ class DialogFragmentServerList(
         refresh = rootView.findViewById<Button>(R.id.refreshButton)
         refresh?.setOnClickListener(this)
         search = rootView.findViewById(R.id.searchLayout)
-        rootView.findViewById<Button>(R.id.web_connect).setOnClickListener(this)
         return rootView
     }
 
@@ -100,34 +98,16 @@ class DialogFragmentServerList(
     @SuppressLint("NotifyDataSetChanged")
     override fun onClick(view: View) {
         Log.d(tag, "onClick")
-        if (view.tag == getString(R.string.tag_button)) {
-            Log.d(tag, "Someone clicked the top bar button")
-            refresh?.visibility = View.GONE
-            search?.visibility = View.VISIBLE
-            serverListItems.clear()
-            serverListAdapter?.notifyDataSetChanged()
-            Log.d(tag, "Creating handler.")
-            val handle = ServFindHandler(Looper.getMainLooper(), this, serverListItems, serverListAdapter)
-            Log.d(tag, "Starting thread to look for servers.")
-            serverFinder = ServerFinder(handle)
-            background = Thread(serverFinder)
-            background!!.start()
-        } else if (view.tag == getString(R.string.tag_web)) {
-            Log.d(tag, "Someone wants to connect to the web registration")
-            serverFinder?.stop()
-            val loginFrag = DialogFragmentLogin(pFrag, menuWatcher)
-            val ft = parentFragmentManager.beginTransaction()
-            val prev = parentFragmentManager.findFragmentByTag("fragment_login")
-            if (prev != null) {
-                ft.remove(prev)
-            }
-            val thisFrag = parentFragmentManager.findFragmentByTag("fragment_connect")
-            if (thisFrag != null) {
-                ft.remove(thisFrag)
-            }
-            loginFrag.show(ft, "fragment_login")
-            this.dismiss()
-        }
+        refresh?.visibility = View.GONE
+        search?.visibility = View.VISIBLE
+        serverListItems.clear()
+        serverListAdapter?.notifyDataSetChanged()
+        Log.d(tag, "Creating handler.")
+        val handle = ServFindHandler(Looper.getMainLooper(), this, serverListItems, serverListAdapter)
+        Log.d(tag, "Starting thread to look for servers.")
+        serverFinder = ServerFinder(handle)
+        background = Thread(serverFinder)
+        background!!.start()
     }
 
     fun serverClicked(position: Int) {
