@@ -122,7 +122,7 @@ class ChronokeepInterface {
                                     failure("Error with login info. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info. (0x12)")
+                                failure("Login information expired or not valid.")
                             }
                         }
 
@@ -203,7 +203,7 @@ class ChronokeepInterface {
                                     failure("Error with login info. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info. (0x12)")
+                                failure("Login information expired or not valid.")
                             }
                         }
 
@@ -262,7 +262,7 @@ class ChronokeepInterface {
                                     val settingsDao = Globals.getDatabase()!!.settingDao()
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_auth_token, loginInfo.access_token))
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_refresh_token, loginInfo.refresh_token))
-                                    val repeat: Call<UpdateParticipantsResponse> = service.updateParticipants("Bearer $token", UpdateParticipantsRequest(slug, year, converted))
+                                    val repeat: Call<UpdateParticipantsResponse> = service.updateParticipants("Bearer ${loginInfo.access_token}", UpdateParticipantsRequest(slug, year, converted))
                                     repeat.enqueue(object: Callback<UpdateParticipantsResponse> {
                                         override fun onResponse(
                                             call: Call<UpdateParticipantsResponse>,
@@ -286,7 +286,7 @@ class ChronokeepInterface {
                                     failure("Unable to update participants. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info. (0x12)")
+                                failure("Login information expired or not valid.")
                             }
                         }
 
@@ -344,7 +344,7 @@ class ChronokeepInterface {
                                     val settingsDao = Globals.getDatabase()!!.settingDao()
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_auth_token, loginInfo.access_token))
                                     settingsDao.addSetting(DatabaseSetting(Constants.setting_refresh_token, loginInfo.refresh_token))
-                                    val repeat: Call<AddParticipantsResponse> = service.addParticipants("Bearer $token", AddParticipantsRequest(slug, year, converted))
+                                    val repeat: Call<AddParticipantsResponse> = service.addParticipants("Bearer ${loginInfo.access_token}", AddParticipantsRequest(slug, year, converted))
                                     repeat.enqueue(object: Callback<AddParticipantsResponse> {
                                         override fun onResponse(
                                             call: Call<AddParticipantsResponse>,
@@ -368,7 +368,7 @@ class ChronokeepInterface {
                                     failure("Unable to add participants. (0x13)")
                                 }
                             } else {
-                                failure("Error with login info. (0x12)")
+                                failure("Login information expired or not valid.")
                             }
                         }
 
