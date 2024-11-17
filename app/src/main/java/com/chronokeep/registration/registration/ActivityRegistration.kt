@@ -195,6 +195,8 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                         }
                         if (count > 0) {
                             Toast.makeText(applicationContext, "Updated $count participants successfully.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(applicationContext, "Upload complete.", Toast.LENGTH_SHORT).show()
                         }
                     }
                     if (newParticipants.isNotEmpty()) {
@@ -238,6 +240,8 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                         }
                         if (count > 0) {
                             Toast.makeText(applicationContext, "Added $count participants successfully.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(applicationContext, "Add participants complete.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
