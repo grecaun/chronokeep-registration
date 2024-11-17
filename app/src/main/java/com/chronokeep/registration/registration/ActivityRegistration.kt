@@ -244,7 +244,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
             }
             R.id.download_web -> {
                 Log.d(tag, "User wants to download from Chronokeep.")
-                val loginFrag = DialogFragmentLogin(pFrag)
+                val loginFrag = DialogFragmentLogin(pFrag, applicationContext)
                 val ft = supportFragmentManager.beginTransaction()
                 val prev = supportFragmentManager.findFragmentByTag("fragment_login")
                 if (prev != null) {

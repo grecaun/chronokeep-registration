@@ -1,6 +1,7 @@
 package com.chronokeep.registration.registration
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,7 +31,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class DialogFragmentLogin(
-    private val participantsWatcher: ParticipantsWatcher?
+    private val participantsWatcher: ParticipantsWatcher?,
+    private val mainContext: Context,
 ) : DialogFragment(), OnClickListener {
     private val tag: String = "Chrono.Login"
 
@@ -254,7 +256,7 @@ class DialogFragmentLogin(
                         }
                     }
                     LoginState.LOADING -> {
-                        Toast.makeText(context, "Working, please wait.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(mainContext, "Working, please wait.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -281,7 +283,7 @@ class DialogFragmentLogin(
                         Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                     }
                     Log.d(tag, "${response.participants.size} participants downloaded. ${(page * 50) - 50 + response.participants.size} total participants downloaded. `$slug,$year,$name`")
-                    Toast.makeText(context, "${(page * 50) - 50 + response.participants.size} participants downloaded.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mainContext, "${(page * 50) - 50 + response.participants.size} participants downloaded.", Toast.LENGTH_SHORT).show()
                     if (response.participants.size == 50) {
                         downloadParticipants(page + 1, access, refresh, slug, year, name)
                     } else {
@@ -292,11 +294,11 @@ class DialogFragmentLogin(
                     val settingDao = Globals.getDatabase()?.settingDao()
                     settingDao?.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                     settingDao?.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
-                    Toast.makeText(context, "Unknown response from server.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mainContext, "Unknown response from server.", Toast.LENGTH_SHORT).show()
                 }
             },
             { message ->
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(mainContext, message, Toast.LENGTH_SHORT).show()
                 Globals.setRegistrationDistances()
                 participantsWatcher?.updateParticipants()
             }
