@@ -25,7 +25,7 @@ class DatabaseParticipant (
     @ColumnInfo(name="mobile") val mobile: String,
     @ColumnInfo(name="sms_enabled") val sms: Boolean,
     @ColumnInfo(name="apparel") val apparel: String,
-    @ColumnInfo(name="chronokeep_info") val chronokeep_info: String,
+    @ColumnInfo(name="chronokeep_info", defaultValue = "") val chronokeep_info: String,
 ) {
     fun age(): String {
         return Period.between(
