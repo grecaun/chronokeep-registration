@@ -134,7 +134,7 @@ class FragmentEditParticipant(
         if (infoVals.size > 1) {
             eventHolder?.visibility = VISIBLE
         } else {
-            //eventHolder?.visibility = GONE
+            eventHolder?.visibility = GONE
         }
         distanceAdapter = ArrayAdapter(
             this.requireContext(),

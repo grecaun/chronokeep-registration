@@ -43,6 +43,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Globals.makeDatabase(applicationContext)
+        Globals.setRegistrationDistances()
         setContentView(R.layout.activity_registration)
         Log.d(tag, "onCreate")
         if (savedInstanceState == null) {
