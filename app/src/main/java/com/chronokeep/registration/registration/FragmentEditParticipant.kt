@@ -22,7 +22,12 @@ import com.chronokeep.registration.R
 import com.chronokeep.registration.interfaces.ChronoActivity
 import com.chronokeep.registration.interfaces.ChronoFragment
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
+import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
 import com.chronokeep.registration.objects.database.DatabaseParticipant
+import com.chronokeep.registration.objects.database.DatabaseSetting
+import com.chronokeep.registration.objects.registration.AddParticipantRequest
+import com.chronokeep.registration.objects.registration.UpdateParticipantRequest
+import com.chronokeep.registration.util.Constants
 import com.chronokeep.registration.util.Globals
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -49,6 +54,7 @@ class FragmentEditParticipant(
     private var apparel: TextView? = null
 
     private var chronokeepInfoDict: HashMap<String, String> = HashMap()
+    private val chronokeep = ChronokeepInterface.getInstance()
 
     override fun updateTitle() {
         val act = activity as ChronoActivity?
@@ -189,7 +195,8 @@ class FragmentEditParticipant(
             mobile = participant.mobile,
             sms = participant.sms,
             apparel = participant.apparel,
-            chronokeep_info = info
+            chronokeep_info = info,
+            uploaded = false
         )
     }
 
@@ -200,15 +207,120 @@ class FragmentEditParticipant(
             if (participant.primary < 1 && participant.id.isEmpty()) {
                 Log.d(tag, "New participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
-                /*Globals.getConnection()?.sendAsyncMessage(AddParticipantRequest(
+                Globals.getConnection()?.sendAsyncMessage(
+                    AddParticipantRequest(
                     participant = fromFields()
-                ).encode())*/
+                ).encode())
             } else {
                 Log.d(tag, "Updating participant: ${fromFields()}")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
-                /*Globals.getConnection()?.sendAsyncMessage(UpdateParticipantRequest(
+                Globals.getConnection()?.sendAsyncMessage(
+                    UpdateParticipantRequest(
                     participant = fromFields()
-                ).encode())*/
+                ).encode())
+            }
+            // Update participants on Chronokeep
+            Log.d(tag, "Uploading updated participants.")
+            val settingDao = Globals.getDatabase()?.settingDao()
+            val access = settingDao?.getSetting(Constants.setting_auth_token)
+            val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
+            if (access != null && access.value.isNotEmpty()
+                && refresh != null && refresh.value.isNotEmpty()) {
+                val participants = Globals.getDatabase()?.participantDao()?.getNotUploaded()
+                val updatedParticipants = ArrayList<DatabaseParticipant>()
+                val newParticipants = ArrayList<DatabaseParticipant>()
+                if (participants != null) {
+                    for (p in participants) {
+                        if (p.bib.isNotEmpty()) {
+                            if (p.id.isNotEmpty()) {
+                                updatedParticipants.add(p)
+                            } else {
+                                newParticipants.add(p)
+                            }
+                        }
+                    }
+                }
+                if (updatedParticipants.isNotEmpty()) {
+                    val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
+                    for (part: DatabaseParticipant in updatedParticipants) {
+                        if (!splitParts.containsKey(part.chronokeep_info)) {
+                            splitParts[part.chronokeep_info] = ArrayList()
+                        }
+                        splitParts[part.chronokeep_info]?.add(part)
+                    }
+                    var count = 0
+                    for (info: String in splitParts.keys) {
+                        val infoSplit = info.split(",")
+                        if (infoSplit.size > 1
+                            && infoSplit[0].isNotBlank()
+                            && infoSplit[1].isNotBlank()
+                            && splitParts.containsKey(info)
+                            && splitParts[info]!!.size > 0
+                        ) {
+                            chronokeep.updateParticipant(
+                                access.value,
+                                refresh.value,
+                                infoSplit[0],
+                                infoSplit[1],
+                                splitParts[info]!!,
+                                { response ->
+                                    if (response != null) {
+                                        count += splitParts[info]!!.size
+                                    }
+                                },
+                                {}
+                            )
+                        }
+                    }
+                    if (count > 0){
+                        for (part in updatedParticipants) {
+                            part.uploaded = true
+                            Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                        }
+                    }
+                }
+                if (newParticipants.isNotEmpty()) {
+                    val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
+                    for (part: DatabaseParticipant in updatedParticipants) {
+                        if (!splitParts.containsKey(part.chronokeep_info)) {
+                            splitParts[part.chronokeep_info] = ArrayList()
+                        }
+                        splitParts[part.chronokeep_info]?.add(part)
+                    }
+                    var count = 0
+                    for (info: String in splitParts.keys) {
+                        val infoSplit = info.split(",")
+                        if (infoSplit.size > 1
+                            && infoSplit[0].isNotBlank()
+                            && infoSplit[1].isNotBlank()
+                            && splitParts.containsKey(info)
+                            && splitParts[info]!!.size > 0
+                        ) {
+                            chronokeep.addParticipant(
+                                access.value,
+                                refresh.value,
+                                infoSplit[0],
+                                infoSplit[1],
+                                newParticipants,
+                                { response ->
+                                    if (response != null) {
+                                        count += splitParts[info]!!.size
+                                    } else {
+                                        settingDao.addSetting(DatabaseSetting(name= Constants.setting_auth_token, value=""))
+                                        settingDao.addSetting(DatabaseSetting(name= Constants.setting_refresh_token, value=""))
+                                    }
+                                },
+                                {}
+                            )
+                        }
+                    }
+                    if (count > 0) {
+                        for (part in newParticipants) {
+                            part.uploaded = true
+                            Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                        }
+                    }
+                }
             }
             watcher.updateParticipants()
         }

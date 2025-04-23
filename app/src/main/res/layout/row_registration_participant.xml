@@ -4,13 +4,35 @@
     android:layout_height="wrap_content"
     android:padding="10dp"
     >
-    <TextView
-        android:id="@+id/part_name"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="85dp"
         android:layout_height="wrap_content"
         android:layout_columnWeight="4"
         android:layout_marginStart="5dp"
-        android:text="@string/name"
+        >
+        <TextView
+            android:id="@+id/part_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/name"
+            />
+        <TextView
+            android:id="@+id/part_dist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/distance"
+            />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/part_bib"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_columnWeight="1"
+        android:layout_marginStart="5dp"
+        android:layout_gravity="center_vertical"
+        android:text="@string/bib"
         />
     <TextView
         android:id="@+id/part_age"
@@ -18,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_columnWeight="1"
         android:layout_marginStart="5dp"
+        android:layout_gravity="center_vertical"
         android:text="@string/age"
         />
     <TextView
@@ -26,22 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_columnWeight="1"
         android:layout_marginStart="5dp"
+        android:layout_gravity="center_vertical"
         android:text="@string/gender"
-        />
-    <Button
-        android:id="@+id/assign_bib"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="1"
-        android:layout_marginStart="10dp"
-        android:text="@string/bib"
-        />
-    <Button
-        android:id="@+id/part_edit"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="1"
-        android:layout_marginStart="10dp"
-        android:text="@string/edit"
         />
 </GridLayout>

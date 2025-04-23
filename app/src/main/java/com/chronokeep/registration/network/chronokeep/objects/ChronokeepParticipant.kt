@@ -32,6 +32,7 @@ class ChronokeepParticipant (
             mobile = mobile,
             apparel = apparel,
             chronokeep_info = chronokeepInfo,
+            uploaded = true,
         )
     }
 }

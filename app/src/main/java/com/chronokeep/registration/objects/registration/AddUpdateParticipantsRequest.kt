@@ -2,7 +2,6 @@ package com.chronokeep.registration.objects.registration
 
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable

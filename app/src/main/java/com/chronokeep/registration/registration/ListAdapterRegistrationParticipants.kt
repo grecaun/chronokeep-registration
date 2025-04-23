@@ -20,6 +20,7 @@ class ListAdapterRegistrationParticipants(
     private val tag: String = "Chrono.PartLA"
 
     private var searchString = ""
+    private var onlyBibs = false
 
     class ParticipantView(private val adapter: ListAdapterRegistrationParticipants, view: View) :
         RecyclerView.ViewHolder(view), OnClickListener {
@@ -28,20 +29,10 @@ class ListAdapterRegistrationParticipants(
         val nameView: TextView = view.findViewById(R.id.part_name)
         val ageView: TextView = view.findViewById(R.id.part_age)
         val genderView: TextView = view.findViewById(R.id.part_gender)
-        private val bibButton: Button = view.findViewById(R.id.assign_bib)
-        private val editButton: Button = view.findViewById(R.id.part_edit)
-
-        init {
-            bibButton.setOnClickListener(this)
-            editButton.setOnClickListener {
-                Log.d(tag, "edit button click")
-                adapter.editParticipant(pos)
-            }
-        }
 
         override fun onClick(view: View?) {
             Log.d(tag, "bib button click")
-            adapter.assignBib(pos)
+            adapter.editParticipant(pos)
         }
     }
 
@@ -85,6 +76,10 @@ class ListAdapterRegistrationParticipants(
         holder.nameView.text = frag.context?.getString(R.string.name_placeholder, part.first, part.last)
     }
 
+    fun setOnlyBibs(bibs: Boolean) {
+        onlyBibs = bibs
+    }
+
     fun setSearchString(search: String) {
         searchString = search.trim()
     }
@@ -94,9 +89,14 @@ class ListAdapterRegistrationParticipants(
         for (i in 0 until objects.size) {
             // if we match then we decrement the position
             // when our oldIndex hits 0, we've found what we're looking for
-            if (searchString.isEmpty() ||
-                objects[i].first.startsWith(searchString, true) ||
-                objects[i].last.startsWith(searchString, true)) {
+            // Matching requires --
+            // Empty search string or their first / last contains the search string, or their bib matches exactly
+            // OnlyBibs is either not enabled, or it is and the bib value is not empty
+            if ((searchString.isEmpty() ||
+                    objects[i].first.startsWith(searchString, true) ||
+                    objects[i].last.startsWith(searchString, true) ||
+                    objects[i].bib.equals(searchString, true)) &&
+                (!onlyBibs || objects[i].bib.isNotEmpty())){
                 if (oldIndex == 0) {
                     return i.toLong()
                 } else {
@@ -112,9 +112,14 @@ class ListAdapterRegistrationParticipants(
         for (i in 0 until objects.size) {
             // if we match then we decrement the position
             // when our oldIndex hits 0, we've found what we're looking for
-            if (searchString.isEmpty() ||
-                objects[i].first.startsWith(searchString, true) ||
-                objects[i].last.startsWith(searchString, true)) {
+            // Matching requires --
+                // Empty search string or their first / last contains the search string, or their bib matches exactly
+                // OnlyBibs is either not enabled, or it is and the bib value is not empty
+            if ((searchString.isEmpty() ||
+                    objects[i].first.startsWith(searchString, true) ||
+                    objects[i].last.startsWith(searchString, true) ||
+                    objects[i].bib.equals(searchString, true)) &&
+                (!onlyBibs || objects[i].bib.isNotEmpty())) {
                 if (oldIndex == 0) {
                     return i
                 } else {
@@ -128,9 +133,11 @@ class ListAdapterRegistrationParticipants(
     override fun getItemCount(): Int {
         var count = 0
         for (participant in objects) {
-            if (searchString.isEmpty() ||
+        if ((searchString.isEmpty() ||
                 participant.first.startsWith(searchString, true) ||
-                participant.last.startsWith(searchString, true)) {
+                participant.last.startsWith(searchString, true) ||
+                participant.bib.equals(searchString, true)) &&
+            (!onlyBibs || participant.bib.isNotEmpty())) {
                 count += 1
             }
         }

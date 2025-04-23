@@ -100,7 +100,8 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 mobile = "",
                 sms = false,
                 apparel = "",
-                chronokeep_info = ""
+                chronokeep_info = "",
+                uploaded = false,
             ),
             this
         )

@@ -12,6 +12,9 @@ interface DatabaseParticipantDao {
     @Query("SELECT * FROM participant")
     fun getParticipants(): List<DatabaseParticipant>
 
+    @Query("SELECT * FROM participant WHERE uploaded = 'false'")
+    fun getNotUploaded(): List<DatabaseParticipant>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addParticipants(parts: List<DatabaseParticipant>)
 

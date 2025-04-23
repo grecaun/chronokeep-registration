@@ -13,6 +13,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         >
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/show_only_bibs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
         <ImageView
             android:id="@+id/search_mag_icon"
             android:layout_width="24dp"
@@ -62,6 +70,14 @@
             android:text="@string/name"
             />
         <TextView
+            android:id="@+id/part_bib"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginStart="5dp"
+            android:text="@string/bib"
+            />
+        <TextView
             android:id="@+id/part_age"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
@@ -76,20 +92,6 @@
             android:layout_columnWeight="1"
             android:layout_marginStart="5dp"
             android:text="@string/gender"
-            />
-        <TextView
-            android:id="@+id/assign_bib"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_marginStart="10dp"
-            />
-        <TextView
-            android:id="@+id/part_edit"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_marginStart="10dp"
             />
     </GridLayout>
     <androidx.recyclerview.widget.RecyclerView
