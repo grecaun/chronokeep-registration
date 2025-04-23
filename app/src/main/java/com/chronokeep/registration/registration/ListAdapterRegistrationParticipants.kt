@@ -36,19 +36,6 @@ class ListAdapterRegistrationParticipants(
         }
     }
 
-    fun assignBib(position: Int) {
-        if (position < 0 || position >= objects.size) {
-            Toast.makeText(frag.requireContext(), "Unable to find participant.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val participant = objects[position]
-        val bibFrag = FragmentAssignParticipantBib(participant = participant, watcher = frag)
-        frag.requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.registration_fragment_container, bibFrag)
-            .addToBackStack("fragment_bib_participant")
-            .commit()
-    }
-
     fun editParticipant(position: Int) {
         if (position < 0 || position >= objects.size) {
             Toast.makeText(frag.requireContext(), "Unable to find participant.", Toast.LENGTH_SHORT).show()

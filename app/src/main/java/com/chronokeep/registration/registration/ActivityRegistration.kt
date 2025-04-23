@@ -195,6 +195,10 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                         }
                         if (count > 0) {
                             Toast.makeText(applicationContext, "Updated $count participants successfully.", Toast.LENGTH_SHORT).show()
+                            for (part in updatedParticipants) {
+                                part.uploaded = true
+                                Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                            }
                         } else {
                             Toast.makeText(applicationContext, "Upload complete.", Toast.LENGTH_SHORT).show()
                         }
@@ -240,6 +244,10 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                         }
                         if (count > 0) {
                             Toast.makeText(applicationContext, "Added $count participants successfully.", Toast.LENGTH_SHORT).show()
+                            for (part in newParticipants) {
+                                part.uploaded = true
+                                Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                            }
                         } else {
                             Toast.makeText(applicationContext, "Add participants complete.", Toast.LENGTH_SHORT).show()
                         }
