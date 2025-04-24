@@ -79,6 +79,15 @@
             android:text="@string/bib"
             />
         <TextView
+            android:id="@+id/part_shirt"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/apparel"
+            />
+        <TextView
             android:id="@+id/part_age"
             android:layout_width="40dp"
             android:layout_height="wrap_content"

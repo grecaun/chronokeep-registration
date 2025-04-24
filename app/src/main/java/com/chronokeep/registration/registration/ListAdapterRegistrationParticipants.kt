@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +30,7 @@ class ListAdapterRegistrationParticipants(
         val genderView: TextView = view.findViewById(R.id.part_gender)
         val bibView: TextView = view.findViewById(R.id.part_bib)
         val distanceView: TextView = view.findViewById(R.id.part_dist)
+        val shirtView: TextView = view.findViewById(R.id.part_shirt)
 
         override fun onClick(view: View?) {
             Log.d(tag, "bib button click")
@@ -66,6 +66,7 @@ class ListAdapterRegistrationParticipants(
         holder.nameView.text = frag.context?.getString(R.string.name_placeholder, part.first, part.last)
         holder.bibView.text = part.bib
         holder.distanceView.text = part.distance
+        holder.shirtView.text = part.apparel
     }
 
     fun setOnlyBibs(bibs: Boolean) {
