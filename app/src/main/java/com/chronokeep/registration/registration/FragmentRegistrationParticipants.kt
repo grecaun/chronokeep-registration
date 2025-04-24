@@ -11,6 +11,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -57,6 +58,7 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
         participantsAdapter.notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,6 +85,11 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 participantsAdapter.notifyDataSetChanged()
             }
         })
+        val onlyBibs: SwitchCompat = rootView.findViewById(R.id.show_only_bibs)
+        onlyBibs.setOnCheckedChangeListener { _, onlyBibsState ->
+            participantsAdapter.setOnlyBibs(onlyBibsState)
+            participantsAdapter.notifyDataSetChanged()
+        }
         return rootView
     }
 

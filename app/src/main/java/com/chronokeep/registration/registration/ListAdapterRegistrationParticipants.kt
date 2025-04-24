@@ -29,6 +29,8 @@ class ListAdapterRegistrationParticipants(
         val nameView: TextView = view.findViewById(R.id.part_name)
         val ageView: TextView = view.findViewById(R.id.part_age)
         val genderView: TextView = view.findViewById(R.id.part_gender)
+        val bibView: TextView = view.findViewById(R.id.part_bib)
+        val distanceView: TextView = view.findViewById(R.id.part_dist)
 
         override fun onClick(view: View?) {
             Log.d(tag, "bib button click")
@@ -57,10 +59,13 @@ class ListAdapterRegistrationParticipants(
 
     override fun onBindViewHolder(holder: ParticipantView, position: Int) {
         holder.pos = getItemId(position).toInt()
+        holder.itemView.setOnClickListener(holder)
         val part = objects[holder.pos]
         holder.ageView.text = part.age()
         holder.genderView.text = part.gender
         holder.nameView.text = frag.context?.getString(R.string.name_placeholder, part.first, part.last)
+        holder.bibView.text = part.bib
+        holder.distanceView.text = part.distance
     }
 
     fun setOnlyBibs(bibs: Boolean) {
