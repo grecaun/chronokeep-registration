@@ -121,7 +121,7 @@ class FragmentEditParticipant(
             }
         }
         val infoVals = ArrayList(chronokeepInfoDict.keys)
-        if (infoVals.size < 1) {
+        if (infoVals.isEmpty()) {
             infoVals.add("local")
         }
         eventAdapter = ArrayAdapter(
@@ -204,23 +204,23 @@ class FragmentEditParticipant(
         Log.d(tag, "onClick")
         if (view?.id == R.id.submit_button) {
             Log.d(tag, "Submit clicked.")
+            val part = fromFields()
             if (participant.primary < 1 && participant.id.isEmpty()) {
-                Log.d(tag, "New participant: ${fromFields()}")
-                Globals.getDatabase()?.participantDao()?.addParticipant(fromFields())
+                Log.d(tag, "New participant: ${part.first} ${part.last}")
+                Globals.getDatabase()?.participantDao()?.addParticipant(part)
                 Globals.getConnection()?.sendAsyncMessage(
                     AddParticipantRequest(
-                    participant = fromFields()
+                    participant = part
                 ).encode())
             } else {
-                Log.d(tag, "Updating participant: ${fromFields()}")
-                Globals.getDatabase()?.participantDao()?.updateParticipant(fromFields())
+                Log.d(tag, "Updating participant: ${part.first} ${part.last}")
+                Globals.getDatabase()?.participantDao()?.updateParticipant(part)
                 Globals.getConnection()?.sendAsyncMessage(
                     UpdateParticipantRequest(
-                    participant = fromFields()
+                    participant = part
                 ).encode())
             }
             // Update participants on Chronokeep
-            Log.d(tag, "Uploading updated participants.")
             val settingDao = Globals.getDatabase()?.settingDao()
             val access = settingDao?.getSetting(Constants.setting_auth_token)
             val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
@@ -240,6 +240,7 @@ class FragmentEditParticipant(
                         }
                     }
                 }
+                Log.d(tag, "Updating ${updatedParticipants.count()} participants.")
                 if (updatedParticipants.isNotEmpty()) {
                     val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                     for (part: DatabaseParticipant in updatedParticipants) {
@@ -248,14 +249,13 @@ class FragmentEditParticipant(
                         }
                         splitParts[part.chronokeep_info]?.add(part)
                     }
-                    var count = 0
                     for (info: String in splitParts.keys) {
                         val infoSplit = info.split(",")
                         if (infoSplit.size > 1
                             && infoSplit[0].isNotBlank()
                             && infoSplit[1].isNotBlank()
                             && splitParts.containsKey(info)
-                            && splitParts[info]!!.size > 0
+                            && splitParts[info]!!.isNotEmpty()
                         ) {
                             chronokeep.updateParticipant(
                                 access.value,
@@ -265,20 +265,22 @@ class FragmentEditParticipant(
                                 splitParts[info]!!,
                                 { response ->
                                     if (response != null) {
-                                        count += splitParts[info]!!.size
+                                        val count = splitParts[info]!!.size
+                                        Log.d(tag, "Count is $count after update.")
+                                        if (count > 0){
+                                            for (p in updatedParticipants) {
+                                                p.uploaded = true
+                                                Globals.getDatabase()?.participantDao()?.updateParticipant(p)
+                                            }
+                                        }
                                     }
                                 },
                                 {}
                             )
                         }
                     }
-                    if (count > 0){
-                        for (part in updatedParticipants) {
-                            part.uploaded = true
-                            Globals.getDatabase()?.participantDao()?.updateParticipant(part)
-                        }
-                    }
                 }
+                Log.d(tag, "Adding ${newParticipants.count()} participants.")
                 if (newParticipants.isNotEmpty()) {
                     val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                     for (part: DatabaseParticipant in updatedParticipants) {
@@ -287,14 +289,13 @@ class FragmentEditParticipant(
                         }
                         splitParts[part.chronokeep_info]?.add(part)
                     }
-                    var count = 0
                     for (info: String in splitParts.keys) {
                         val infoSplit = info.split(",")
                         if (infoSplit.size > 1
                             && infoSplit[0].isNotBlank()
                             && infoSplit[1].isNotBlank()
                             && splitParts.containsKey(info)
-                            && splitParts[info]!!.size > 0
+                            && splitParts[info]!!.isNotEmpty()
                         ) {
                             chronokeep.addParticipant(
                                 access.value,
@@ -304,7 +305,14 @@ class FragmentEditParticipant(
                                 newParticipants,
                                 { response ->
                                     if (response != null) {
-                                        count += splitParts[info]!!.size
+                                        val count = splitParts[info]!!.size
+                                        Log.d(tag, "Count is $count after update.")
+                                        if (count > 0){
+                                            for (p in updatedParticipants) {
+                                                p.uploaded = true
+                                                Globals.getDatabase()?.participantDao()?.updateParticipant(p)
+                                            }
+                                        }
                                     } else {
                                         settingDao.addSetting(DatabaseSetting(name= Constants.setting_auth_token, value=""))
                                         settingDao.addSetting(DatabaseSetting(name= Constants.setting_refresh_token, value=""))
@@ -312,12 +320,6 @@ class FragmentEditParticipant(
                                 },
                                 {}
                             )
-                        }
-                    }
-                    if (count > 0) {
-                        for (part in newParticipants) {
-                            part.uploaded = true
-                            Globals.getDatabase()?.participantDao()?.updateParticipant(part)
                         }
                     }
                 }
