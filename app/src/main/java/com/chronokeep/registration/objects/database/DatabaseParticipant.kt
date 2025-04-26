@@ -29,9 +29,13 @@ class DatabaseParticipant (
     @ColumnInfo(name="uploaded", defaultValue = "false") var uploaded: Boolean,
 ) {
     fun age(): String {
-        return Period.between(
-            LocalDate.parse(birthdate, DateTimeFormatter.ofPattern("M/d/yyyy")),
-            LocalDate.now()).years.toString()
+        return try {
+            Period.between(
+                LocalDate.parse(birthdate, DateTimeFormatter.ofPattern("M/d/yyyy")),
+                LocalDate.now()).years.toString()
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     fun toChronokeepParticipant(): ChronokeepParticipant {
