@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
