@@ -9,7 +9,8 @@ import kotlinx.serialization.json.Json
 class AddParticipantsRequest (
     val slug: String,
     val year: String,
-    val participants: List<ChronokeepParticipant>
+    val participants: List<ChronokeepParticipant>,
+    val updated_after: Long?,
 ) {
     fun encode(): String {
         val format = Json { encodeDefaults = true }

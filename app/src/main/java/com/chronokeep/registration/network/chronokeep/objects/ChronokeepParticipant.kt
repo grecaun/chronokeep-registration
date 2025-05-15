@@ -18,6 +18,7 @@ class ChronokeepParticipant (
     val sms_enabled: Boolean,
     val mobile: String,
     val apparel: String,
+    val updated_at: Long,
 ) {
     fun toDatabaseParticipant(chronokeepInfo: String): DatabaseParticipant {
         return DatabaseParticipant(
@@ -33,6 +34,7 @@ class ChronokeepParticipant (
             apparel = apparel,
             chronokeep_info = chronokeepInfo,
             uploaded = true,
+            updated_at = updated_at
         )
     }
 }

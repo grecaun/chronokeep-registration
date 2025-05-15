@@ -15,11 +15,14 @@ interface DatabaseParticipantDao {
     @Query("SELECT * FROM participant WHERE uploaded = 0")
     fun getNotUploaded(): List<DatabaseParticipant>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addParticipants(parts: List<DatabaseParticipant>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addParticipant(part: DatabaseParticipant)
+
+    @Query("UPDATE participant SET uploaded=1 WHERE row_id=:primary")
+    fun setUploaded(primary: Int)
 
     @Update
     fun updateParticipants(parts: List<DatabaseParticipant>)

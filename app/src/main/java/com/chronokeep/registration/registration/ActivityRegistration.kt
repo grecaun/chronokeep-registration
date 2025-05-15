@@ -1,7 +1,6 @@
 package com.chronokeep.registration.registration
 
 import android.app.ActivityManager
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
@@ -73,7 +72,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val pinMenu = menu?.findItem(R.id.unpin)
-        val actMan = getSystemService(Context.ACTIVITY_SERVICE)
+        val actMan = getSystemService(ACTIVITY_SERVICE)
         when (actMan) {
             ActivityManager.LOCK_TASK_MODE_PINNED,
             ActivityManager.LOCK_TASK_MODE_LOCKED-> {
@@ -140,11 +139,15 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                 val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
                 if (access != null && access.value.isNotEmpty()
                     && refresh != null && refresh.value.isNotEmpty()) {
+                    var updatedAfter = Globals.getUpdatedAfter()
                     val participants = Globals.getDatabase()?.participantDao()?.getParticipants()
                     val updatedParticipants = ArrayList<DatabaseParticipant>()
                     val newParticipants = ArrayList<DatabaseParticipant>()
                     if (participants != null) {
                         for (p in participants) {
+                            if (p.updated_at > updatedAfter) {
+                                updatedAfter = p.updated_at
+                            }
                             if (p.bib.isNotEmpty()) {
                                 if (p.id.isNotEmpty()) {
                                     updatedParticipants.add(p)
@@ -169,17 +172,28 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                 && infoSplit[0].isNotBlank()
                                 && infoSplit[1].isNotBlank()
                                 && splitParts.containsKey(info)
-                                && splitParts[info]!!.size > 0
+                                && splitParts[info]!!.isNotEmpty()
                                 ) {
+                                val slug = infoSplit[0]
+                                val year = infoSplit[1]
                                 chronokeep.updateParticipant(
                                     access.value,
                                     refresh.value,
-                                    infoSplit[0],
-                                    infoSplit[1],
+                                    slug,
+                                    year,
                                     splitParts[info]!!,
+                                    updatedAfter,
                                     { response ->
                                         if (response != null) {
                                             count += splitParts[info]!!.size
+                                            val newParts = ArrayList<DatabaseParticipant>()
+                                            for (p in response.updated_participants) {
+                                                newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                                if (p.updated_at > updatedAfter) {
+                                                    updatedAfter = p.updated_at
+                                                }
+                                            }
+                                            Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         } else {
                                             settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                             settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
@@ -197,7 +211,7 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             Toast.makeText(applicationContext, "Updated $count participants successfully.", Toast.LENGTH_SHORT).show()
                             for (part in updatedParticipants) {
                                 part.uploaded = true
-                                Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                                Globals.getDatabase()?.participantDao()?.setUploaded(part.primary)
                             }
                         } else {
                             Toast.makeText(applicationContext, "Upload complete.", Toast.LENGTH_SHORT).show()
@@ -218,17 +232,28 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                 && infoSplit[0].isNotBlank()
                                 && infoSplit[1].isNotBlank()
                                 && splitParts.containsKey(info)
-                                && splitParts[info]!!.size > 0
+                                && splitParts[info]!!.isNotEmpty()
                             ) {
+                                val slug = infoSplit[0]
+                                val year = infoSplit[1]
                                 chronokeep.addParticipant(
                                     access.value,
                                     refresh.value,
-                                    infoSplit[0],
-                                    infoSplit[1],
+                                    slug,
+                                    year,
                                     newParticipants,
+                                    updatedAfter,
                                     { response ->
                                         if (response != null) {
                                             count += splitParts[info]!!.size
+                                            val newParts = ArrayList<DatabaseParticipant>()
+                                            for (p in response.updated_participants) {
+                                                newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                                if (p.updated_at > updatedAfter) {
+                                                    updatedAfter = p.updated_at
+                                                }
+                                            }
+                                            Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         } else {
                                             settingDao.addSetting(DatabaseSetting(name=Constants.setting_auth_token, value=""))
                                             settingDao.addSetting(DatabaseSetting(name=Constants.setting_refresh_token, value=""))
@@ -246,12 +271,14 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             Toast.makeText(applicationContext, "Added $count participants successfully.", Toast.LENGTH_SHORT).show()
                             for (part in newParticipants) {
                                 part.uploaded = true
-                                Globals.getDatabase()?.participantDao()?.updateParticipant(part)
+                                Globals.getDatabase()?.participantDao()?.setUploaded(part.primary)
                             }
                         } else {
                             Toast.makeText(applicationContext, "Add participants complete.", Toast.LENGTH_SHORT).show()
                         }
                     }
+                    Globals.setUpdatedAfter(updatedAfter)
+                    pFrag?.updateParticipants()
                 }
                 return true
             }
@@ -322,10 +349,6 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
     }
 
     override fun updateMenu() {
-        if (Globals.isConnected()) {
-            menu?.findItem(R.id.menu_local)?.setVisible(true)
-        } else {
-            menu?.findItem(R.id.menu_local)?.setVisible(false)
-        }
+        menu?.findItem(R.id.menu_local)?.isVisible = Globals.isConnected()
     }
 }

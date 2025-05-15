@@ -9,7 +9,8 @@ class GetParticipantsRequest (
     val slug: String,
     val year: String?,
     val limit: Int?,
-    val page: Int?
+    val page: Int?,
+    val updated_after: Long?,
 ) {
     fun encode(): String {
         val format = Json { encodeDefaults = true }

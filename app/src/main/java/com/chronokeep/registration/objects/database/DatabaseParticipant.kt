@@ -25,6 +25,7 @@ class DatabaseParticipant (
     @ColumnInfo(name="mobile") val mobile: String,
     @ColumnInfo(name="sms_enabled") val sms: Boolean,
     @ColumnInfo(name="apparel") val apparel: String,
+    @ColumnInfo(name="updated_at") val updated_at: Long,
     @ColumnInfo(name="chronokeep_info", defaultValue = "") val chronokeep_info: String,
     @ColumnInfo(name="uploaded", defaultValue = "false") var uploaded: Boolean,
 ) {
@@ -51,7 +52,8 @@ class DatabaseParticipant (
             mobile = mobile,
             apparel = apparel,
             anonymous = false,
-            age_group = ""
+            age_group = "",
+            updated_at = updated_at
         )
     }
 }

@@ -109,6 +109,7 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 apparel = "",
                 chronokeep_info = "",
                 uploaded = false,
+                updated_at = 0,
             ),
             this
         )

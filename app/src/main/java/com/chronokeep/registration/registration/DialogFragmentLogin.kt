@@ -18,7 +18,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.chronokeep.registration.R
-import com.chronokeep.registration.interfaces.MenuWatcher
 import com.chronokeep.registration.interfaces.ParticipantsWatcher
 import com.chronokeep.registration.network.chronokeep.ChronokeepInterface
 import com.chronokeep.registration.network.chronokeep.objects.ChronokeepAllEventYear
@@ -235,7 +234,7 @@ class DialogFragmentLogin(
                             val access = database?.settingDao()?.getSetting(name=Constants.setting_auth_token)
                             val refresh = database?.settingDao()?.getSetting(name=Constants.setting_refresh_token)
                             if (access != null && access.value.isNotEmpty() && refresh != null && refresh.value.isNotEmpty()) {
-                                downloadParticipants(1, access.value, refresh.value, year.slug, year.year, year.name)
+                                downloadParticipants(1, access.value, refresh.value, year.slug, year.year)
                                 dismiss()
                             } else {
                                 // access tokens not set
@@ -267,7 +266,7 @@ class DialogFragmentLogin(
         }
     }
 
-    private fun downloadParticipants(page: Int, access: String, refresh: String, slug: String, year: String, name: String) {
+    private fun downloadParticipants(page: Int, access: String, refresh: String, slug: String, year: String) {
         chronokeep.getParticipants(
             access,
             refresh,
@@ -279,13 +278,13 @@ class DialogFragmentLogin(
                 if (response != null) {
                     val newParts = ArrayList<DatabaseParticipant>()
                     for (p in response.participants) {
-                        newParts.add(p.toDatabaseParticipant("$slug,$year,$name"))
-                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                        newParts.add(p.toDatabaseParticipant("$slug,$year"))
                     }
-                    Log.d(tag, "${response.participants.size} participants downloaded. ${(page * 50) - 50 + response.participants.size} total participants downloaded. `$slug,$year,$name`")
+                    Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                    Log.d(tag, "${response.participants.size} participants downloaded. ${(page * 50) - 50 + response.participants.size} total participants downloaded. `$slug,$year`")
                     Toast.makeText(mainContext, "${(page * 50) - 50 + response.participants.size} participants downloaded.", Toast.LENGTH_SHORT).show()
                     if (response.participants.size == 50) {
-                        downloadParticipants(page + 1, access, refresh, slug, year, name)
+                        downloadParticipants(page + 1, access, refresh, slug, year)
                     } else {
                         Globals.setRegistrationDistances()
                         participantsWatcher?.updateParticipants()

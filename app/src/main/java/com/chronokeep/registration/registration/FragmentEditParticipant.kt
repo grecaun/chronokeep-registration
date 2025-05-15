@@ -196,7 +196,8 @@ class FragmentEditParticipant(
             sms = participant.sms,
             apparel = participant.apparel,
             chronokeep_info = info,
-            uploaded = false
+            uploaded = false,
+            updated_at = participant.updated_at,
         )
     }
 
@@ -226,11 +227,15 @@ class FragmentEditParticipant(
             val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
             if (access != null && access.value.isNotEmpty()
                 && refresh != null && refresh.value.isNotEmpty()) {
+                var updatedAfter = Globals.getUpdatedAfter()
                 val participants = Globals.getDatabase()?.participantDao()?.getNotUploaded()
                 val updatedParticipants = ArrayList<DatabaseParticipant>()
                 val newParticipants = ArrayList<DatabaseParticipant>()
                 if (participants != null) {
                     for (p in participants) {
+                        if (p.updated_at > updatedAfter) {
+                            updatedAfter = p.updated_at
+                        }
                         if (p.bib.isNotEmpty()) {
                             if (p.id.isNotEmpty()) {
                                 updatedParticipants.add(p)
@@ -257,20 +262,31 @@ class FragmentEditParticipant(
                             && splitParts.containsKey(info)
                             && splitParts[info]!!.isNotEmpty()
                         ) {
+                            val slug = infoSplit[0]
+                            val year = infoSplit[1]
                             chronokeep.updateParticipant(
                                 access.value,
                                 refresh.value,
-                                infoSplit[0],
-                                infoSplit[1],
+                                slug,
+                                year,
                                 splitParts[info]!!,
+                                updatedAfter,
                                 { response ->
                                     if (response != null) {
                                         val count = splitParts[info]!!.size
                                         Log.d(tag, "Count is $count after update.")
+                                        val newParts = ArrayList<DatabaseParticipant>()
+                                        for (p in response.updated_participants) {
+                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                            if (p.updated_at > updatedAfter) {
+                                                updatedAfter = p.updated_at
+                                            }
+                                        }
+                                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         if (count > 0){
                                             for (p in updatedParticipants) {
                                                 p.uploaded = true
-                                                Globals.getDatabase()?.participantDao()?.updateParticipant(p)
+                                                Globals.getDatabase()?.participantDao()?.setUploaded(p.primary)
                                             }
                                         }
                                     }
@@ -297,16 +313,27 @@ class FragmentEditParticipant(
                             && splitParts.containsKey(info)
                             && splitParts[info]!!.isNotEmpty()
                         ) {
+                            val slug = infoSplit[0]
+                            val year = infoSplit[1]
                             chronokeep.addParticipant(
                                 access.value,
                                 refresh.value,
-                                infoSplit[0],
-                                infoSplit[1],
+                                slug,
+                                year,
                                 newParticipants,
+                                updatedAfter,
                                 { response ->
                                     if (response != null) {
                                         val count = splitParts[info]!!.size
                                         Log.d(tag, "Count is $count after update.")
+                                        val newParts = ArrayList<DatabaseParticipant>()
+                                        for (p in response.updated_participants) {
+                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                            if (p.updated_at > updatedAfter) {
+                                                updatedAfter = p.updated_at
+                                            }
+                                        }
+                                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         if (count > 0){
                                             for (p in updatedParticipants) {
                                                 p.uploaded = true
@@ -323,6 +350,7 @@ class FragmentEditParticipant(
                         }
                     }
                 }
+                Globals.setUpdatedAfter(updatedAfter)
             }
             watcher.updateParticipants()
         }

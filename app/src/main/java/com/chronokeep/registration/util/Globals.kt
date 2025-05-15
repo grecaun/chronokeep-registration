@@ -9,6 +9,8 @@ import com.chronokeep.registration.objects.ServerInformation
 import com.chronokeep.registration.objects.database.Database
 import com.chronokeep.registration.objects.registration.RegistrationError
 import java.net.InetAddress
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 object Globals {
     class RegistrationInfo {
@@ -74,6 +76,21 @@ object Globals {
 
     // Database var for registration information storage.
     private var database: Database? = null
+
+    private var updatedAfter: Long = 0
+    private val updatedLock = ReentrantLock()
+
+    fun getUpdatedAfter(): Long {
+        updatedLock.withLock {
+            return updatedAfter
+        }
+    }
+
+    fun setUpdatedAfter(after: Long) {
+        updatedLock.withLock {
+            updatedAfter = after
+        }
+    }
 
     fun getDatabase(): Database? {
         return database
