@@ -67,10 +67,4 @@
         android:title="@string/menu_main_about"
         android:contentDescription="@string/menu_main_about"
         />
-    <item
-        android:id="@+id/unpin"
-        android:orderInCategory="5"
-        android:title="@string/menu_unpin"
-        android:contentDescription="@string/menu_unpin"
-        />
 </menu>

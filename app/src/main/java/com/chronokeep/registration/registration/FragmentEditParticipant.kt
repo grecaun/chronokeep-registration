@@ -183,9 +183,14 @@ class FragmentEditParticipant(
             info = chronokeepInfoDict[info]!!
         }
         Log.d(tag, "gender == $gender")
+        val registrationId = if (participant.id.isNotEmpty()) {
+            participant.id
+        } else {
+            "${first?.text.toString()}${last?.text.toString()}${distance?.selectedItem.toString()}${birthdate?.text.toString()}${info}"
+        }
         return DatabaseParticipant(
             primary = participant.primary,
-            id = participant.id,
+            id = registrationId,
             bib = bib?.text.toString(),
             first = first?.text.toString(),
             last = last?.text.toString(),

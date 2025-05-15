@@ -2,6 +2,8 @@ package com.chronokeep.registration.network.chronokeep.objects
 
 import com.chronokeep.registration.objects.database.DatabaseParticipant
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Suppress("unused", "PropertyName")
 @Serializable
@@ -21,12 +23,20 @@ class ChronokeepParticipant (
     val updated_at: Long,
 ) {
     fun toDatabaseParticipant(chronokeepInfo: String): DatabaseParticipant {
+        val date = try {
+            LocalDate.parse(birthdate, DateTimeFormatter.ofPattern("M/d/yyyy"))
+        } catch (_: Exception) {
+            LocalDate.now()
+        }
+        val day = date.dayOfMonth
+        val month = date.monthValue
+        val year = date.year
         return DatabaseParticipant(
             id = id,
             bib = bib,
             first = first,
             last = last,
-            birthdate = birthdate,
+            birthdate = "$month/$day/$year",
             gender = gender,
             distance = distance,
             sms = sms_enabled,

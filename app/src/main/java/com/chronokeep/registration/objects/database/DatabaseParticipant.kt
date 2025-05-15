@@ -12,7 +12,7 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Serializable
-@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate", "chronokeep_info"], unique = true)])
+@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate", "chronokeep_info"], unique = true), Index(value = ["registration_id"], unique = true)])
 class DatabaseParticipant (
     @Transient @PrimaryKey(autoGenerate = true) @ColumnInfo(name="row_id") val primary: Int = 0,
     @ColumnInfo(name="registration_id") val id: String,
