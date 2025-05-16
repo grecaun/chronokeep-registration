@@ -7,7 +7,7 @@ import com.chronokeep.registration.network.Connection
 import com.chronokeep.registration.network.ConnectionHandler
 import com.chronokeep.registration.objects.ServerInformation
 import com.chronokeep.registration.objects.database.Database
-import com.chronokeep.registration.objects.database.migration_4_5
+import com.chronokeep.registration.objects.database.MIGRATION_4_5
 import com.chronokeep.registration.objects.registration.RegistrationError
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
@@ -100,7 +100,7 @@ object Globals {
     fun makeDatabase(context: Context) {
         if (database == null) {
             database = Room.databaseBuilder(context, Database::class.java, "chronokeep-control").addMigrations(
-                migration_4_5
+                MIGRATION_4_5
             ).allowMainThreadQueries().build()
         }
         val participants = database?.participantDao()?.getParticipants()
