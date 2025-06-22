@@ -1,6 +1,5 @@
 package com.chronokeep.registration.registration
 
-import android.app.ActivityManager
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
@@ -146,15 +145,13 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             if (!splitParts.containsKey(part.chronokeep_info)) {
                                 splitParts[part.chronokeep_info] = ArrayList()
                             }
-                            splitParts[part.chronokeep_info]?.add(part)
+                            splitParts[part.chronokeep_info]!!.add(part)
                         }
-                        var count = 0
                         for (info: String in splitParts.keys) {
                             val infoSplit = info.split(",")
                             if (infoSplit.size > 1
                                 && infoSplit[0].isNotBlank()
                                 && infoSplit[1].isNotBlank()
-                                && splitParts.containsKey(info)
                                 && splitParts[info]!!.isNotEmpty()
                                 ) {
                                 val slug = infoSplit[0]
@@ -168,13 +165,15 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                     updatedAfter,
                                     { response ->
                                         if (response != null) {
-                                            count += splitParts[info]!!.size
                                             val newParts = ArrayList<DatabaseParticipant>()
+                                            Toast.makeText(applicationContext, "Updated ${splitParts[info]!!.size} participants successfully.", Toast.LENGTH_SHORT).show()
                                             for (p in response.updated_participants) {
-                                                newParts.add(p.toDatabaseParticipant("$slug,$year"))
                                                 if (p.updated_at > updatedAfter) {
                                                     updatedAfter = p.updated_at
                                                 }
+                                                val part: DatabaseParticipant = p.toDatabaseParticipant("$slug,$year")
+                                                part.uploaded = true
+                                                newParts.add(part)
                                             }
                                             Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         } else {
@@ -190,15 +189,6 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                 )
                             }
                         }
-                        if (count > 0) {
-                            Toast.makeText(applicationContext, "Updated $count participants successfully.", Toast.LENGTH_SHORT).show()
-                            for (part in updatedParticipants) {
-                                part.uploaded = true
-                                Globals.getDatabase()?.participantDao()?.setUploaded(part.primary)
-                            }
-                        } else {
-                            Toast.makeText(applicationContext, "Upload complete.", Toast.LENGTH_SHORT).show()
-                        }
                     }
                     if (newParticipants.isNotEmpty()) {
                         val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
@@ -208,7 +198,6 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                             }
                             splitParts[part.chronokeep_info]?.add(part)
                         }
-                        var count = 0
                         for (info: String in splitParts.keys) {
                             val infoSplit = info.split(",")
                             if (infoSplit.size > 1
@@ -228,13 +217,15 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                     updatedAfter,
                                     { response ->
                                         if (response != null) {
-                                            count += splitParts[info]!!.size
                                             val newParts = ArrayList<DatabaseParticipant>()
+                                            Toast.makeText(applicationContext, "Added ${splitParts[info]!!.size} participants successfully.", Toast.LENGTH_SHORT).show()
                                             for (p in response.updated_participants) {
-                                                newParts.add(p.toDatabaseParticipant("$slug,$year"))
                                                 if (p.updated_at > updatedAfter) {
                                                     updatedAfter = p.updated_at
                                                 }
+                                                val part: DatabaseParticipant = p.toDatabaseParticipant("$slug,$year")
+                                                part.uploaded = true
+                                                newParts.add(part)
                                             }
                                             Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
                                         } else {
@@ -249,15 +240,6 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                                     }
                                 )
                             }
-                        }
-                        if (count > 0) {
-                            Toast.makeText(applicationContext, "Added $count participants successfully.", Toast.LENGTH_SHORT).show()
-                            for (part in newParticipants) {
-                                part.uploaded = true
-                                Globals.getDatabase()?.participantDao()?.setUploaded(part.primary)
-                            }
-                        } else {
-                            Toast.makeText(applicationContext, "Add participants complete.", Toast.LENGTH_SHORT).show()
                         }
                     }
                     Globals.setUpdatedAfter(updatedAfter)

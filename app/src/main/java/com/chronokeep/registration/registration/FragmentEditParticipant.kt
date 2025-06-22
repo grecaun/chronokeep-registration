@@ -116,8 +116,8 @@ class FragmentEditParticipant(
         chronokeepInfoDict.clear()
         for (info: String in Globals.getRegistrationYears()) {
             val splitInfo = info.split(",")
-            if (splitInfo.size > 2) {
-                chronokeepInfoDict["${splitInfo[1]} ${splitInfo[2]}"] = info
+            if (splitInfo.size > 1) {
+                chronokeepInfoDict["${splitInfo[0]} ${splitInfo[1]}"] = info
             }
         }
         val infoVals = ArrayList(chronokeepInfoDict.keys)
