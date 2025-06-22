@@ -1,5 +1,5 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 constraintlayout = "2.2.1"
 converterGson = "2.11.0"
 desugar_jdk_libs = "2.1.5"
