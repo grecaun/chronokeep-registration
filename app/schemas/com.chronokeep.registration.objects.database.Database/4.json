@@ -1,0 +1,151 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "a937749110f3449b8972c141afd39a81",
+    "entities": [
+      {
+        "tableName": "participant",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`row_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `registration_id` TEXT NOT NULL, `bib` TEXT NOT NULL, `first_name` TEXT NOT NULL, `last_name` TEXT NOT NULL, `birthdate` TEXT NOT NULL, `gender` TEXT NOT NULL, `distance` TEXT NOT NULL, `mobile` TEXT NOT NULL, `sms_enabled` INTEGER NOT NULL, `apparel` TEXT NOT NULL, `updated_at` INTEGER NOT NULL DEFAULT 0, `chronokeep_info` TEXT NOT NULL DEFAULT '', `uploaded` INTEGER NOT NULL DEFAULT false)",
+        "fields": [
+          {
+            "fieldPath": "primary",
+            "columnName": "row_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "registration_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bib",
+            "columnName": "bib",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "first",
+            "columnName": "first_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "last",
+            "columnName": "last_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "birthdate",
+            "columnName": "birthdate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gender",
+            "columnName": "gender",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mobile",
+            "columnName": "mobile",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sms",
+            "columnName": "sms_enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apparel",
+            "columnName": "apparel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updated_at",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "chronokeep_info",
+            "columnName": "chronokeep_info",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "uploaded",
+            "columnName": "uploaded",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "false"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "row_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_participant_first_name_last_name_distance_birthdate_chronokeep_info",
+            "unique": true,
+            "columnNames": [
+              "first_name",
+              "last_name",
+              "distance",
+              "birthdate",
+              "chronokeep_info"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_participant_first_name_last_name_distance_birthdate_chronokeep_info` ON `${TABLE_NAME}` (`first_name`, `last_name`, `distance`, `birthdate`, `chronokeep_info`)"
+          }
+        ]
+      },
+      {
+        "tableName": "setting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "name"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a937749110f3449b8972c141afd39a81')"
+    ]
+  }
+}
