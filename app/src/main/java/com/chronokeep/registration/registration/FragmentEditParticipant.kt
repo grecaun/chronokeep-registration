@@ -102,6 +102,7 @@ class FragmentEditParticipant(
                 otherGender?.visibility = GONE
             }
         }
+        event?.visibility = VISIBLE
         birthdate = output.findViewById(R.id.edit_participant_birthdate)
         val cancel: Button = output.findViewById(R.id.cancel_button)
         cancel.setOnClickListener(this)
@@ -117,7 +118,9 @@ class FragmentEditParticipant(
         for (info: String in Globals.getRegistrationYears()) {
             val splitInfo = info.split(",")
             if (splitInfo.size > 1) {
-                chronokeepInfoDict["${splitInfo[0]} ${splitInfo[1]}"] = info
+                chronokeepInfoDict["${splitInfo[1]} ${splitInfo[0]}"] = info
+            } else {
+                chronokeepInfoDict[info] = info
             }
         }
         val infoVals = ArrayList(chronokeepInfoDict.keys)
@@ -183,9 +186,7 @@ class FragmentEditParticipant(
             info = chronokeepInfoDict[info]!!
         }
         Log.d(tag, "gender == $gender")
-        val registrationId = if (participant.id.isNotEmpty()) {
-            participant.id
-        } else {
+        val registrationId = participant.id.ifEmpty {
             "${first?.text.toString()}${last?.text.toString()}${distance?.selectedItem.toString()}${birthdate?.text.toString()}${info}"
         }
         return DatabaseParticipant(
@@ -214,17 +215,21 @@ class FragmentEditParticipant(
             if (participant.primary < 1 && participant.id.isEmpty()) {
                 Log.d(tag, "New participant: ${part.first} ${part.last}")
                 Globals.getDatabase()?.participantDao()?.addParticipant(part)
-                Globals.getConnection()?.sendAsyncMessage(
-                    AddParticipantRequest(
-                    participant = part
-                ).encode())
+                try {
+                    Globals.getConnection()?.sendAsyncMessage(
+                        AddParticipantRequest(
+                            participant = part
+                        ).encode())
+                } catch (_: Exception) {}
             } else {
                 Log.d(tag, "Updating participant: ${part.first} ${part.last}")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(part)
-                Globals.getConnection()?.sendAsyncMessage(
-                    UpdateParticipantRequest(
-                    participant = part
-                ).encode())
+                try {
+                    Globals.getConnection()?.sendAsyncMessage(
+                        UpdateParticipantRequest(
+                            participant = part
+                        ).encode())
+                } catch (_: Exception) {}
             }
             // Update participants on Chronokeep
             val settingDao = Globals.getDatabase()?.settingDao()
@@ -253,11 +258,11 @@ class FragmentEditParticipant(
                 Log.d(tag, "Updating ${updatedParticipants.count()} participants.")
                 if (updatedParticipants.isNotEmpty()) {
                     val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
-                    for (part: DatabaseParticipant in updatedParticipants) {
-                        if (!splitParts.containsKey(part.chronokeep_info)) {
-                            splitParts[part.chronokeep_info] = ArrayList()
+                    for (p: DatabaseParticipant in updatedParticipants) {
+                        if (!splitParts.containsKey(p.chronokeep_info)) {
+                            splitParts[p.chronokeep_info] = ArrayList()
                         }
-                        splitParts[part.chronokeep_info]?.add(part)
+                        splitParts[p.chronokeep_info]?.add(p)
                     }
                     for (info: String in splitParts.keys) {
                         val infoSplit = info.split(",")
@@ -282,9 +287,20 @@ class FragmentEditParticipant(
                                         Log.d(tag, "Count is $count after update.")
                                         val newParts = ArrayList<DatabaseParticipant>()
                                         for (p in response.updated_participants) {
-                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                            if (p.updated_at > updatedAfter) {
-                                                updatedAfter = p.updated_at
+                                            // Check if the participant is known either by the registration_id or their first, last, birthdate, gender, distance
+                                            var oldParticipant = Globals.getDatabase()?.participantDao()?.getParticipantById(p.id)
+                                            if (oldParticipant.isNullOrEmpty()) {
+                                                oldParticipant = Globals.getDatabase()?.participantDao()?.getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, "$slug,$year")
+                                            }
+                                            // If the list is empty they weren't found, if they were, check to make sure they weren't found twice and that the bib is blank
+                                            if (oldParticipant.isNullOrEmpty() || (oldParticipant.size == 1 && oldParticipant[0].bib.isBlank())) {
+                                                // Check to make sure we're not attempting to automatically add a blank bib to the list
+                                                if (p.bib.isNotBlank()) {
+                                                    newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                                    if (p.updated_at > updatedAfter) {
+                                                        updatedAfter = p.updated_at
+                                                    }
+                                                }
                                             }
                                         }
                                         Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
@@ -304,11 +320,11 @@ class FragmentEditParticipant(
                 Log.d(tag, "Adding ${newParticipants.count()} participants.")
                 if (newParticipants.isNotEmpty()) {
                     val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
-                    for (part: DatabaseParticipant in updatedParticipants) {
-                        if (!splitParts.containsKey(part.chronokeep_info)) {
-                            splitParts[part.chronokeep_info] = ArrayList()
+                    for (p: DatabaseParticipant in updatedParticipants) {
+                        if (!splitParts.containsKey(p.chronokeep_info)) {
+                            splitParts[p.chronokeep_info] = ArrayList()
                         }
-                        splitParts[part.chronokeep_info]?.add(part)
+                        splitParts[p.chronokeep_info]?.add(p)
                     }
                     for (info: String in splitParts.keys) {
                         val infoSplit = info.split(",")
@@ -333,9 +349,20 @@ class FragmentEditParticipant(
                                         Log.d(tag, "Count is $count after update.")
                                         val newParts = ArrayList<DatabaseParticipant>()
                                         for (p in response.updated_participants) {
-                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                            if (p.updated_at > updatedAfter) {
-                                                updatedAfter = p.updated_at
+                                            // Check if the participant is known either by the registration_id or their first, last, birthdate, gender, distance
+                                            var oldPart = Globals.getDatabase()?.participantDao()?.getParticipantById(p.id)
+                                            if (oldPart.isNullOrEmpty()) {
+                                                oldPart = Globals.getDatabase()?.participantDao()?.getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, "$slug,$year")
+                                            }
+                                            // If the list is empty they weren't found, if they were, check to make sure they weren't found twice and that the bib is blank
+                                            if (oldPart.isNullOrEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
+                                                // Check to make sure we're not attempting to automatically add a blank bib to the list
+                                                if (p.bib.isNotBlank()) {
+                                                    newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                                    if (p.updated_at > updatedAfter) {
+                                                        updatedAfter = p.updated_at
+                                                    }
+                                                }
                                             }
                                         }
                                         Globals.getDatabase()?.participantDao()?.addParticipants(newParts)

@@ -12,6 +12,17 @@ interface DatabaseParticipantDao {
     @Query("SELECT * FROM participant")
     fun getParticipants(): List<DatabaseParticipant>
 
+    @Query("SELECT * FROM participant WHERE registration_id=:id")
+    fun getParticipantById(id: String): List<DatabaseParticipant>
+
+    @Query("SELECT * FROM participant WHERE first_name=:first " +
+            "AND last_name=:last " +
+            "AND birthdate=:birthdate " +
+            "AND gender=:gender " +
+            "AND distance=:distance " +
+            "AND chronokeep_info=:info")
+    fun getParticipant(first: String, last: String, birthdate: String, gender: String, distance: String, info: String): List<DatabaseParticipant>
+
     @Query("SELECT * FROM participant WHERE uploaded = 0")
     fun getNotUploaded(): List<DatabaseParticipant>
 
