@@ -21,8 +21,8 @@ abstract class Database : RoomDatabase() {
 }
 
 val MIGRATION_4_5 = object : Migration(4, 5) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("DELETE FROM participant")
-        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_participant_registration_id ON participant (registration_id)")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DELETE FROM participant")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_participant_registration_id ON participant (registration_id)")
     }
 }
