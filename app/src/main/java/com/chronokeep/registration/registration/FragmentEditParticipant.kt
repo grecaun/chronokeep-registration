@@ -102,7 +102,6 @@ class FragmentEditParticipant(
                 otherGender?.visibility = GONE
             }
         }
-        event?.visibility = VISIBLE
         birthdate = output.findViewById(R.id.edit_participant_birthdate)
         val cancel: Button = output.findViewById(R.id.cancel_button)
         cancel.setOnClickListener(this)
