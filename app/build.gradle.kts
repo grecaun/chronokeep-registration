@@ -27,6 +27,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        getByName("debug") {
+            applicationIdSuffix = "debug"
+        }
     }
     compileOptions {
         // Flag to enable support for new language APIs
