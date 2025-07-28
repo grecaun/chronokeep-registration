@@ -287,20 +287,9 @@ class FragmentEditParticipant(
                                         Log.d(tag, "Count is $count after update.")
                                         val newParts = ArrayList<DatabaseParticipant>()
                                         for (p in response.updated_participants) {
-                                            // Check if the participant is known either by the registration_id or their first, last, birthdate, gender, distance
-                                            var oldParticipant = Globals.getDatabase()?.participantDao()?.getParticipantById(p.id)
-                                            if (oldParticipant.isNullOrEmpty()) {
-                                                oldParticipant = Globals.getDatabase()?.participantDao()?.getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, "$slug,$year")
-                                            }
-                                            // If the list is empty they weren't found, if they were, check to make sure they weren't found twice and that the bib is blank
-                                            if (oldParticipant.isNullOrEmpty() || (oldParticipant.size == 1 && oldParticipant[0].bib.isBlank())) {
-                                                // Check to make sure we're not attempting to automatically add a blank bib to the list
-                                                if (p.bib.isNotBlank()) {
-                                                    newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                                    if (p.updated_at > updatedAfter) {
-                                                        updatedAfter = p.updated_at
-                                                    }
-                                                }
+                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                            if (p.updated_at > updatedAfter) {
+                                                updatedAfter = p.updated_at
                                             }
                                         }
                                         Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
@@ -349,20 +338,9 @@ class FragmentEditParticipant(
                                         Log.d(tag, "Count is $count after update.")
                                         val newParts = ArrayList<DatabaseParticipant>()
                                         for (p in response.updated_participants) {
-                                            // Check if the participant is known either by the registration_id or their first, last, birthdate, gender, distance
-                                            var oldPart = Globals.getDatabase()?.participantDao()?.getParticipantById(p.id)
-                                            if (oldPart.isNullOrEmpty()) {
-                                                oldPart = Globals.getDatabase()?.participantDao()?.getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, "$slug,$year")
-                                            }
-                                            // If the list is empty they weren't found, if they were, check to make sure they weren't found twice and that the bib is blank
-                                            if (oldPart.isNullOrEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
-                                                // Check to make sure we're not attempting to automatically add a blank bib to the list
-                                                if (p.bib.isNotBlank()) {
-                                                    newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                                    if (p.updated_at > updatedAfter) {
-                                                        updatedAfter = p.updated_at
-                                                    }
-                                                }
+                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                            if (p.updated_at > updatedAfter) {
+                                                updatedAfter = p.updated_at
                                             }
                                         }
                                         Globals.getDatabase()?.participantDao()?.addParticipants(newParts)

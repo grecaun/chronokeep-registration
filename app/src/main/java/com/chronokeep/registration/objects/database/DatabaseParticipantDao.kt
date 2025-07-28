@@ -27,10 +27,39 @@ interface DatabaseParticipantDao {
     fun getNotUploaded(): List<DatabaseParticipant>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addParticipants(parts: List<DatabaseParticipant>)
+    fun addParticipantsInternal(parts: List<DatabaseParticipant>)
+
+    fun addParticipants(parts: List<DatabaseParticipant>) {
+        // Check participants in order to ensure we don't override known bib numbers entered.
+        val toAdd = ArrayList<DatabaseParticipant>()
+        for (p in parts) {
+            var oldPart = getParticipantById(p.id)
+            // If participant can't be found by ID, check for a match by other fields
+            if (oldPart.isEmpty()) {
+                oldPart = getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, p.chronokeep_info)
+            }
+            // If none found, or no bib set, add to list to add to database.
+            if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
+                toAdd.add(p)
+            }
+        }
+        addParticipantsInternal(toAdd)
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addParticipant(part: DatabaseParticipant)
+    fun addParticipantInternal(part: DatabaseParticipant)
+
+    fun addParticipant(part: DatabaseParticipant) {
+        var oldPart = getParticipantById(part.id)
+        // If participant can't be found by ID, check for a match by other fields
+        if (oldPart.isEmpty()) {
+            oldPart = getParticipant(part.first, part.last, part.birthdate, part.gender, part.distance, part.chronokeep_info)
+        }
+        // If none found, or no bib set, add to list to add to database.
+        if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
+            addParticipantInternal(part)
+        }
+    }
 
     @Query("UPDATE participant SET uploaded=1 WHERE row_id=:primary")
     fun setUploaded(primary: Int)
