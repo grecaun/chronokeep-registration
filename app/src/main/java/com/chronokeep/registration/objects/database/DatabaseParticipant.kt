@@ -39,6 +39,14 @@ class DatabaseParticipant (
         }
     }
 
+    fun Matches(other: DatabaseParticipant): Boolean {
+        return this.first.equals(other.first, true) && this.last.equals(other.last, true)
+                && this.bib.equals(other.bib, true) && this.birthdate.equals(other.birthdate, true)
+                && this.gender.equals(other.gender, true) && this.distance.equals(other.distance, true)
+                && this.mobile.equals(other.mobile, true) && this.sms == other.sms
+                && this.apparel.equals(other.apparel, true) && this.chronokeep_info.equals(other.chronokeep_info)
+    }
+
     fun toChronokeepParticipant(): ChronokeepParticipant {
         return ChronokeepParticipant(
             id = id,

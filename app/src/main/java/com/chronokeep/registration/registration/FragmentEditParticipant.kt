@@ -104,7 +104,10 @@ class FragmentEditParticipant(
         }
         birthdate = output.findViewById(R.id.edit_participant_birthdate)
         val cancel: Button = output.findViewById(R.id.cancel_button)
-        cancel.setOnClickListener(this)
+        cancel.setOnClickListener{
+            val fragmentManager = requireActivity().supportFragmentManager
+            fragmentManager.popBackStack()
+        }
         val submit: Button = output.findViewById(R.id.submit_button)
         submit.setOnClickListener(this)
         updateFields()
@@ -191,12 +194,12 @@ class FragmentEditParticipant(
         return DatabaseParticipant(
             primary = participant.primary,
             id = registrationId,
-            bib = bib?.text.toString(),
-            first = first?.text.toString(),
-            last = last?.text.toString(),
-            birthdate = birthdate?.text.toString(),
+            bib = bib?.text.toString().trim(),
+            first = first?.text.toString().trim(),
+            last = last?.text.toString().trim(),
+            birthdate = birthdate?.text.toString().trim(),
             gender = gender,
-            distance = distance?.selectedItem.toString(),
+            distance = distance?.selectedItem.toString().trim(),
             mobile = participant.mobile,
             sms = participant.sms,
             apparel = participant.apparel,
@@ -207,162 +210,173 @@ class FragmentEditParticipant(
     }
 
     override fun onClick(view: View?) {
-        Log.d(tag, "onClick")
-        if (view?.id == R.id.submit_button) {
-            Log.d(tag, "Submit clicked.")
-            val part = fromFields()
-            if (participant.primary < 1 && participant.id.isEmpty()) {
+        Log.d(tag, "Submit clicked.")
+        val part = fromFields()
+        if (participant.primary < 1 && participant.id.isEmpty()) {
+            if (participant.first.isNotEmpty() || participant.last.isNotEmpty()) {
                 Log.d(tag, "New participant: ${part.first} ${part.last}")
-                Globals.getDatabase()?.participantDao()?.addParticipant(part)
+                for (i in 1..4) {
+                    Log.d(tag, "Attempt $i at adding new participant.")
+                    Globals.getDatabase()?.participantDao()?.addParticipant(part)
+                    val tmp = Globals.getDatabase()?.participantDao()?.getParticipant(part.first, part.last, part.birthdate, part.gender, part.distance, part.chronokeep_info)
+                    if (tmp != null) { break }
+                }
                 try {
                     Globals.getConnection()?.sendAsyncMessage(
                         AddParticipantRequest(
                             participant = part
                         ).encode())
                 } catch (_: Exception) {}
-            } else {
-                Log.d(tag, "Updating participant: ${part.first} ${part.last}")
+            }
+        } else {
+            Log.d(tag, "Updating participant: ${part.first} ${part.last}")
+            for (i in 1..4) {
+                Log.d(tag, "Attempt $i at adding new participant.")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(part)
-                try {
-                    Globals.getConnection()?.sendAsyncMessage(
-                        UpdateParticipantRequest(
-                            participant = part
-                        ).encode())
-                } catch (_: Exception) {}
+                val tmp = Globals.getDatabase()?.participantDao()?.getParticipantById(part.id)
+                if (tmp != null && tmp.size == 1 && tmp[0].Matches(part)) {
+                    break;
+                }
             }
-            // Update participants on Chronokeep
-            val settingDao = Globals.getDatabase()?.settingDao()
-            val access = settingDao?.getSetting(Constants.setting_auth_token)
-            val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
-            if (access != null && access.value.isNotEmpty()
-                && refresh != null && refresh.value.isNotEmpty()) {
-                var updatedAfter = Globals.getUpdatedAfter()
-                val participants = Globals.getDatabase()?.participantDao()?.getNotUploaded()
-                val updatedParticipants = ArrayList<DatabaseParticipant>()
-                val newParticipants = ArrayList<DatabaseParticipant>()
-                if (participants != null) {
-                    for (p in participants) {
-                        if (p.updated_at > updatedAfter) {
-                            updatedAfter = p.updated_at
-                        }
-                        if (p.bib.isNotEmpty()) {
-                            if (p.id.isNotEmpty()) {
-                                updatedParticipants.add(p)
-                            } else {
-                                newParticipants.add(p)
-                            }
-                        }
-                    }
-                }
-                Log.d(tag, "Updating ${updatedParticipants.count()} participants.")
-                if (updatedParticipants.isNotEmpty()) {
-                    val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
-                    for (p: DatabaseParticipant in updatedParticipants) {
-                        if (!splitParts.containsKey(p.chronokeep_info)) {
-                            splitParts[p.chronokeep_info] = ArrayList()
-                        }
-                        splitParts[p.chronokeep_info]?.add(p)
-                    }
-                    for (info: String in splitParts.keys) {
-                        val infoSplit = info.split(",")
-                        if (infoSplit.size > 1
-                            && infoSplit[0].isNotBlank()
-                            && infoSplit[1].isNotBlank()
-                            && splitParts.containsKey(info)
-                            && splitParts[info]!!.isNotEmpty()
-                        ) {
-                            val slug = infoSplit[0]
-                            val year = infoSplit[1]
-                            chronokeep.updateParticipant(
-                                access.value,
-                                refresh.value,
-                                slug,
-                                year,
-                                splitParts[info]!!,
-                                updatedAfter,
-                                { response ->
-                                    if (response != null) {
-                                        val count = splitParts[info]!!.size
-                                        Log.d(tag, "Count is $count after update.")
-                                        val newParts = ArrayList<DatabaseParticipant>()
-                                        for (p in response.updated_participants) {
-                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                            if (p.updated_at > updatedAfter) {
-                                                updatedAfter = p.updated_at
-                                            }
-                                        }
-                                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
-                                        if (count > 0){
-                                            for (p in updatedParticipants) {
-                                                p.uploaded = true
-                                                Globals.getDatabase()?.participantDao()?.setUploaded(p.primary)
-                                            }
-                                        }
-                                    }
-                                },
-                                {}
-                            )
-                        }
-                    }
-                }
-                Log.d(tag, "Adding ${newParticipants.count()} participants.")
-                if (newParticipants.isNotEmpty()) {
-                    val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
-                    for (p: DatabaseParticipant in updatedParticipants) {
-                        if (!splitParts.containsKey(p.chronokeep_info)) {
-                            splitParts[p.chronokeep_info] = ArrayList()
-                        }
-                        splitParts[p.chronokeep_info]?.add(p)
-                    }
-                    for (info: String in splitParts.keys) {
-                        val infoSplit = info.split(",")
-                        if (infoSplit.size > 1
-                            && infoSplit[0].isNotBlank()
-                            && infoSplit[1].isNotBlank()
-                            && splitParts.containsKey(info)
-                            && splitParts[info]!!.isNotEmpty()
-                        ) {
-                            val slug = infoSplit[0]
-                            val year = infoSplit[1]
-                            chronokeep.addParticipant(
-                                access.value,
-                                refresh.value,
-                                slug,
-                                year,
-                                newParticipants,
-                                updatedAfter,
-                                { response ->
-                                    if (response != null) {
-                                        val count = splitParts[info]!!.size
-                                        Log.d(tag, "Count is $count after update.")
-                                        val newParts = ArrayList<DatabaseParticipant>()
-                                        for (p in response.updated_participants) {
-                                            newParts.add(p.toDatabaseParticipant("$slug,$year"))
-                                            if (p.updated_at > updatedAfter) {
-                                                updatedAfter = p.updated_at
-                                            }
-                                        }
-                                        Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
-                                        if (count > 0){
-                                            for (p in updatedParticipants) {
-                                                p.uploaded = true
-                                                Globals.getDatabase()?.participantDao()?.updateParticipant(p)
-                                            }
-                                        }
-                                    } else {
-                                        settingDao.addSetting(DatabaseSetting(name= Constants.setting_auth_token, value=""))
-                                        settingDao.addSetting(DatabaseSetting(name= Constants.setting_refresh_token, value=""))
-                                    }
-                                },
-                                {}
-                            )
-                        }
-                    }
-                }
-                Globals.setUpdatedAfter(updatedAfter)
-            }
-            watcher.updateParticipants()
+            try {
+                Globals.getConnection()?.sendAsyncMessage(
+                    UpdateParticipantRequest(
+                        participant = part
+                    ).encode())
+            } catch (_: Exception) {}
         }
+        // Update participants on Chronokeep
+        val settingDao = Globals.getDatabase()?.settingDao()
+        val access = settingDao?.getSetting(Constants.setting_auth_token)
+        val refresh = settingDao?.getSetting(Constants.setting_refresh_token)
+        if (access != null && access.value.isNotEmpty()
+            && refresh != null && refresh.value.isNotEmpty()) {
+            var updatedAfter = Globals.getUpdatedAfter()
+            val participants = Globals.getDatabase()?.participantDao()?.getNotUploaded()
+            val updatedParticipants = ArrayList<DatabaseParticipant>()
+            val newParticipants = ArrayList<DatabaseParticipant>()
+            if (participants != null) {
+                for (p in participants) {
+                    if (p.updated_at > updatedAfter) {
+                        updatedAfter = p.updated_at
+                    }
+                    if (p.bib.isNotEmpty()) {
+                        if (p.id.isNotEmpty()) {
+                            updatedParticipants.add(p)
+                        } else {
+                            newParticipants.add(p)
+                        }
+                    }
+                }
+            }
+            Log.d(tag, "Updating ${updatedParticipants.count()} participants.")
+            if (updatedParticipants.isNotEmpty()) {
+                val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
+                for (p: DatabaseParticipant in updatedParticipants) {
+                    if (!splitParts.containsKey(p.chronokeep_info)) {
+                        splitParts[p.chronokeep_info] = ArrayList()
+                    }
+                    splitParts[p.chronokeep_info]?.add(p)
+                }
+                for (info: String in splitParts.keys) {
+                    val infoSplit = info.split(",")
+                    if (infoSplit.size > 1
+                        && infoSplit[0].isNotBlank()
+                        && infoSplit[1].isNotBlank()
+                        && splitParts.containsKey(info)
+                        && splitParts[info]!!.isNotEmpty()
+                    ) {
+                        val slug = infoSplit[0]
+                        val year = infoSplit[1]
+                        chronokeep.updateParticipant(
+                            access.value,
+                            refresh.value,
+                            slug,
+                            year,
+                            splitParts[info]!!,
+                            updatedAfter,
+                            { response ->
+                                if (response != null) {
+                                    val count = splitParts[info]!!.size
+                                    Log.d(tag, "Count is $count after update.")
+                                    val newParts = ArrayList<DatabaseParticipant>()
+                                    for (p in response.updated_participants) {
+                                        newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                        if (p.updated_at > updatedAfter) {
+                                            updatedAfter = p.updated_at
+                                        }
+                                    }
+                                    Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                                    if (count > 0){
+                                        for (p in updatedParticipants) {
+                                            p.uploaded = true
+                                            Globals.getDatabase()?.participantDao()?.setUploaded(p.primary)
+                                        }
+                                    }
+                                }
+                            },
+                            {}
+                        )
+                    }
+                }
+            }
+            Log.d(tag, "Adding ${newParticipants.count()} participants.")
+            if (newParticipants.isNotEmpty()) {
+                val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
+                for (p: DatabaseParticipant in updatedParticipants) {
+                    if (!splitParts.containsKey(p.chronokeep_info)) {
+                        splitParts[p.chronokeep_info] = ArrayList()
+                    }
+                    splitParts[p.chronokeep_info]?.add(p)
+                }
+                for (info: String in splitParts.keys) {
+                    val infoSplit = info.split(",")
+                    if (infoSplit.size > 1
+                        && infoSplit[0].isNotBlank()
+                        && infoSplit[1].isNotBlank()
+                        && splitParts.containsKey(info)
+                        && splitParts[info]!!.isNotEmpty()
+                    ) {
+                        val slug = infoSplit[0]
+                        val year = infoSplit[1]
+                        chronokeep.addParticipant(
+                            access.value,
+                            refresh.value,
+                            slug,
+                            year,
+                            newParticipants,
+                            updatedAfter,
+                            { response ->
+                                if (response != null) {
+                                    val count = splitParts[info]!!.size
+                                    Log.d(tag, "Count is $count after update.")
+                                    val newParts = ArrayList<DatabaseParticipant>()
+                                    for (p in response.updated_participants) {
+                                        newParts.add(p.toDatabaseParticipant("$slug,$year"))
+                                        if (p.updated_at > updatedAfter) {
+                                            updatedAfter = p.updated_at
+                                        }
+                                    }
+                                    Globals.getDatabase()?.participantDao()?.addParticipants(newParts)
+                                    if (count > 0){
+                                        for (p in updatedParticipants) {
+                                            p.uploaded = true
+                                            Globals.getDatabase()?.participantDao()?.updateParticipant(p)
+                                        }
+                                    }
+                                } else {
+                                    settingDao.addSetting(DatabaseSetting(name= Constants.setting_auth_token, value=""))
+                                    settingDao.addSetting(DatabaseSetting(name= Constants.setting_refresh_token, value=""))
+                                }
+                            },
+                            {}
+                        )
+                    }
+                }
+            }
+            Globals.setUpdatedAfter(updatedAfter)
+        }
+        watcher.updateParticipants()
         val fragmentManager = requireActivity().supportFragmentManager
         fragmentManager.popBackStack()
     }
