@@ -42,9 +42,9 @@ class ChronokeepParticipant (
             sms = sms_enabled,
             mobile = mobile,
             apparel = apparel,
-            chronokeep_info = chronokeepInfo,
+            chronokeepInfo = chronokeepInfo,
             uploaded = true,
-            updated_at = updated_at
+            updatedAt = updated_at
         )
     }
 }

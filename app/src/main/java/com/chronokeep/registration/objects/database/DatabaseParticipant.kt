@@ -6,16 +6,14 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.chronokeep.registration.network.chronokeep.objects.ChronokeepParticipant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
 @Serializable
-@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate", "chronokeep_info"], unique = true), Index(value = ["registration_id"], unique = true)])
+@Entity(tableName="participant", indices=[Index(value = ["first_name", "last_name", "distance", "birthdate", "chronokeep_info"], unique = true)])
 class DatabaseParticipant (
-    @Transient @PrimaryKey(autoGenerate = true) @ColumnInfo(name="row_id") val primary: Int = 0,
-    @ColumnInfo(name="registration_id") val id: String,
+    @PrimaryKey @ColumnInfo(name="registration_id") val id: String,
     @ColumnInfo(name="bib") val bib: String,
     @ColumnInfo(name="first_name") val first: String,
     @ColumnInfo(name="last_name") val last: String,
@@ -25,8 +23,8 @@ class DatabaseParticipant (
     @ColumnInfo(name="mobile") val mobile: String,
     @ColumnInfo(name="sms_enabled") val sms: Boolean,
     @ColumnInfo(name="apparel") val apparel: String,
-    @ColumnInfo(name="updated_at", defaultValue = "0") val updated_at: Long,
-    @ColumnInfo(name="chronokeep_info", defaultValue = "") val chronokeep_info: String,
+    @ColumnInfo(name="updated_at", defaultValue = "0") val updatedAt: Long,
+    @ColumnInfo(name="chronokeep_info", defaultValue = "") val chronokeepInfo: String,
     @ColumnInfo(name="uploaded", defaultValue = "false") var uploaded: Boolean,
 ) {
     fun age(): String {
@@ -39,12 +37,12 @@ class DatabaseParticipant (
         }
     }
 
-    fun Matches(other: DatabaseParticipant): Boolean {
+    fun matches(other: DatabaseParticipant): Boolean {
         return this.first.equals(other.first, true) && this.last.equals(other.last, true)
                 && this.bib.equals(other.bib, true) && this.birthdate.equals(other.birthdate, true)
                 && this.gender.equals(other.gender, true) && this.distance.equals(other.distance, true)
                 && this.mobile.equals(other.mobile, true) && this.sms == other.sms
-                && this.apparel.equals(other.apparel, true) && this.chronokeep_info.equals(other.chronokeep_info)
+                && this.apparel.equals(other.apparel, true) && this.chronokeepInfo == other.chronokeepInfo
     }
 
     fun toChronokeepParticipant(): ChronokeepParticipant {
@@ -61,7 +59,7 @@ class DatabaseParticipant (
             apparel = apparel,
             anonymous = false,
             age_group = "",
-            updated_at = updated_at
+            updated_at = updatedAt
         )
     }
 }

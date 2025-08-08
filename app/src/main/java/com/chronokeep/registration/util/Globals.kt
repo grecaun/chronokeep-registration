@@ -122,7 +122,7 @@ object Globals {
             if (participants != null) {
                 for (part in participants) {
                     registration.distances.add(part.distance)
-                    registration.chronokeepInfoSet.add(part.chronokeep_info)
+                    registration.chronokeepInfoSet.add(part.chronokeepInfo)
                 }
             }
         }

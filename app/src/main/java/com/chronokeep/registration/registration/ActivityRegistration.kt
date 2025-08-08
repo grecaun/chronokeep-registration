@@ -127,8 +127,8 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     val newParticipants = ArrayList<DatabaseParticipant>()
                     if (participants != null) {
                         for (p in participants) {
-                            if (p.updated_at > updatedAfter) {
-                                updatedAfter = p.updated_at
+                            if (p.updatedAt > updatedAfter) {
+                                updatedAfter = p.updatedAt
                             }
                             if (p.bib.isNotEmpty()) {
                                 if (p.id.isNotEmpty()) {
@@ -142,10 +142,10 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     if (updatedParticipants.isNotEmpty()) {
                         val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                         for (part: DatabaseParticipant in updatedParticipants) {
-                            if (!splitParts.containsKey(part.chronokeep_info)) {
-                                splitParts[part.chronokeep_info] = ArrayList()
+                            if (!splitParts.containsKey(part.chronokeepInfo)) {
+                                splitParts[part.chronokeepInfo] = ArrayList()
                             }
-                            splitParts[part.chronokeep_info]!!.add(part)
+                            splitParts[part.chronokeepInfo]!!.add(part)
                         }
                         for (info: String in splitParts.keys) {
                             val infoSplit = info.split(",")
@@ -193,10 +193,10 @@ class ActivityRegistration: AppCompatActivity(), ChronoActivity, MenuWatcher {
                     if (newParticipants.isNotEmpty()) {
                         val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                         for (part: DatabaseParticipant in updatedParticipants) {
-                            if (!splitParts.containsKey(part.chronokeep_info)) {
-                                splitParts[part.chronokeep_info] = ArrayList()
+                            if (!splitParts.containsKey(part.chronokeepInfo)) {
+                                splitParts[part.chronokeepInfo] = ArrayList()
                             }
-                            splitParts[part.chronokeep_info]?.add(part)
+                            splitParts[part.chronokeepInfo]?.add(part)
                         }
                         for (info: String in splitParts.keys) {
                             val infoSplit = info.split(",")

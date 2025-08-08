@@ -33,14 +33,16 @@ interface DatabaseParticipantDao {
         // Check participants in order to ensure we don't override known bib numbers entered.
         val toAdd = ArrayList<DatabaseParticipant>()
         for (p in parts) {
-            var oldPart = getParticipantById(p.id)
-            // If participant can't be found by ID, check for a match by other fields
-            if (oldPart.isEmpty()) {
-                oldPart = getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, p.chronokeep_info)
-            }
-            // If none found, or no bib set, add to list to add to database.
-            if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
-                toAdd.add(p)
+            if (p.first.isNotEmpty() || p.last.isNotEmpty()) {
+                var oldPart = getParticipantById(p.id)
+                // If participant can't be found by ID, check for a match by other fields
+                if (oldPart.isEmpty()) {
+                    oldPart = getParticipant(p.first, p.last, p.birthdate, p.gender, p.distance, p.chronokeepInfo)
+                }
+                // If none found, or no bib set, add to list to add to database.
+                if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
+                    toAdd.add(p)
+                }
             }
         }
         addParticipantsInternal(toAdd)
@@ -50,19 +52,28 @@ interface DatabaseParticipantDao {
     fun addParticipantInternal(part: DatabaseParticipant)
 
     fun addParticipant(part: DatabaseParticipant) {
-        var oldPart = getParticipantById(part.id)
-        // If participant can't be found by ID, check for a match by other fields
-        if (oldPart.isEmpty()) {
-            oldPart = getParticipant(part.first, part.last, part.birthdate, part.gender, part.distance, part.chronokeep_info)
-        }
-        // If none found, or no bib set, add to list to add to database.
-        if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
-            addParticipantInternal(part)
+        if (part.first.isNotEmpty() || part.last.isNotEmpty()) {
+            var oldPart = getParticipantById(part.id)
+            // If participant can't be found by ID, check for a match by other fields
+            if (oldPart.isEmpty()) {
+                oldPart = getParticipant(
+                    part.first,
+                    part.last,
+                    part.birthdate,
+                    part.gender,
+                    part.distance,
+                    part.chronokeepInfo
+                )
+            }
+            // If none found, or no bib set, add to list to add to database.
+            if (oldPart.isEmpty() || (oldPart.size == 1 && oldPart[0].bib.isBlank())) {
+                addParticipantInternal(part)
+            }
         }
     }
 
-    @Query("UPDATE participant SET uploaded=1 WHERE row_id=:primary")
-    fun setUploaded(primary: Int)
+    @Query("UPDATE participant SET uploaded=1 WHERE registration_id=:id")
+    fun setUploaded(id: String)
 
     @Update
     fun updateParticipants(parts: List<DatabaseParticipant>)

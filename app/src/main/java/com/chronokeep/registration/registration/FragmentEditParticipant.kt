@@ -137,7 +137,7 @@ class FragmentEditParticipant(
         event?.adapter = eventAdapter
         event?.setSelection(0)
         for (info: String in infoVals) {
-            if (chronokeepInfoDict[info] == participant.chronokeep_info
+            if (chronokeepInfoDict[info] == participant.chronokeepInfo
                 && eventAdapter!!.getPosition(info) >= 0) {
                 event?.setSelection(eventAdapter!!.getPosition(info))
             }
@@ -187,12 +187,10 @@ class FragmentEditParticipant(
         if (chronokeepInfoDict.containsKey(info)) {
             info = chronokeepInfoDict[info]!!
         }
-        Log.d(tag, "gender == $gender")
         val registrationId = participant.id.ifEmpty {
             "${first?.text.toString()}${last?.text.toString()}${distance?.selectedItem.toString()}${birthdate?.text.toString()}${info}"
         }
         return DatabaseParticipant(
-            primary = participant.primary,
             id = registrationId,
             bib = bib?.text.toString().trim(),
             first = first?.text.toString().trim(),
@@ -203,22 +201,22 @@ class FragmentEditParticipant(
             mobile = participant.mobile,
             sms = participant.sms,
             apparel = participant.apparel,
-            chronokeep_info = info,
+            chronokeepInfo = info,
             uploaded = false,
-            updated_at = participant.updated_at,
+            updatedAt = participant.updatedAt,
         )
     }
 
     override fun onClick(view: View?) {
         Log.d(tag, "Submit clicked.")
         val part = fromFields()
-        if (participant.primary < 1 && participant.id.isEmpty()) {
+        if (participant.id.isEmpty()) {
             if (participant.first.isNotEmpty() || participant.last.isNotEmpty()) {
                 Log.d(tag, "New participant: ${part.first} ${part.last}")
                 for (i in 1..4) {
                     Log.d(tag, "Attempt $i at adding new participant.")
                     Globals.getDatabase()?.participantDao()?.addParticipant(part)
-                    val tmp = Globals.getDatabase()?.participantDao()?.getParticipant(part.first, part.last, part.birthdate, part.gender, part.distance, part.chronokeep_info)
+                    val tmp = Globals.getDatabase()?.participantDao()?.getParticipant(part.first, part.last, part.birthdate, part.gender, part.distance, part.chronokeepInfo)
                     if (tmp != null) { break }
                 }
                 try {
@@ -234,7 +232,7 @@ class FragmentEditParticipant(
                 Log.d(tag, "Attempt $i at adding new participant.")
                 Globals.getDatabase()?.participantDao()?.updateParticipant(part)
                 val tmp = Globals.getDatabase()?.participantDao()?.getParticipantById(part.id)
-                if (tmp != null && tmp.size == 1 && tmp[0].Matches(part)) {
+                if (tmp != null && tmp.size == 1 && tmp[0].matches(part)) {
                     break;
                 }
             }
@@ -257,8 +255,8 @@ class FragmentEditParticipant(
             val newParticipants = ArrayList<DatabaseParticipant>()
             if (participants != null) {
                 for (p in participants) {
-                    if (p.updated_at > updatedAfter) {
-                        updatedAfter = p.updated_at
+                    if (p.updatedAt > updatedAfter) {
+                        updatedAfter = p.updatedAt
                     }
                     if (p.bib.isNotEmpty()) {
                         if (p.id.isNotEmpty()) {
@@ -273,10 +271,10 @@ class FragmentEditParticipant(
             if (updatedParticipants.isNotEmpty()) {
                 val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                 for (p: DatabaseParticipant in updatedParticipants) {
-                    if (!splitParts.containsKey(p.chronokeep_info)) {
-                        splitParts[p.chronokeep_info] = ArrayList()
+                    if (!splitParts.containsKey(p.chronokeepInfo)) {
+                        splitParts[p.chronokeepInfo] = ArrayList()
                     }
-                    splitParts[p.chronokeep_info]?.add(p)
+                    splitParts[p.chronokeepInfo]?.add(p)
                 }
                 for (info: String in splitParts.keys) {
                     val infoSplit = info.split(",")
@@ -310,7 +308,7 @@ class FragmentEditParticipant(
                                     if (count > 0){
                                         for (p in updatedParticipants) {
                                             p.uploaded = true
-                                            Globals.getDatabase()?.participantDao()?.setUploaded(p.primary)
+                                            Globals.getDatabase()?.participantDao()?.setUploaded(p.id)
                                         }
                                     }
                                 }
@@ -324,10 +322,10 @@ class FragmentEditParticipant(
             if (newParticipants.isNotEmpty()) {
                 val splitParts = HashMap<String, ArrayList<DatabaseParticipant>>()
                 for (p: DatabaseParticipant in updatedParticipants) {
-                    if (!splitParts.containsKey(p.chronokeep_info)) {
-                        splitParts[p.chronokeep_info] = ArrayList()
+                    if (!splitParts.containsKey(p.chronokeepInfo)) {
+                        splitParts[p.chronokeepInfo] = ArrayList()
                     }
-                    splitParts[p.chronokeep_info]?.add(p)
+                    splitParts[p.chronokeepInfo]?.add(p)
                 }
                 for (info: String in splitParts.keys) {
                     val infoSplit = info.split(",")

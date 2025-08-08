@@ -33,6 +33,7 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
     init {
         val database = Globals.getDatabase()!!
         val list: MutableList<DatabaseParticipant> = database.participantDao().getParticipants().toMutableList()
+        list.sortWith(compareBy<DatabaseParticipant> { part -> part.last }.thenBy { part -> part.first } )
         participantsAdapter = ListAdapterRegistrationParticipants(list, this)
     }
 
@@ -50,9 +51,9 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
 
     @SuppressLint("NotifyDataSetChanged")
     override fun updateParticipants() {
+        Log.d(tag, "updateRegistrationParticipants called")
         val database = Globals.getDatabase()!!
         val list: MutableList<DatabaseParticipant> = database.participantDao().getParticipants().toMutableList()
-        Log.d(tag, "updateRegistrationParticipants called")
         list.sortWith(compareBy<DatabaseParticipant> { part -> part.last }.thenBy { part -> part.first } )
         participantsAdapter.objects = list
         participantsAdapter.notifyDataSetChanged()
@@ -107,9 +108,9 @@ class FragmentRegistrationParticipants: Fragment(), OnClickListener, Participant
                 mobile = "",
                 sms = false,
                 apparel = "",
-                chronokeep_info = "",
+                chronokeepInfo = "",
                 uploaded = false,
-                updated_at = 0,
+                updatedAt = 0,
             ),
             this
         )
