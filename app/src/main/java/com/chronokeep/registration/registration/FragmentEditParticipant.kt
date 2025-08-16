@@ -233,7 +233,7 @@ class FragmentEditParticipant(
                 Globals.getDatabase()?.participantDao()?.updateParticipant(part)
                 val tmp = Globals.getDatabase()?.participantDao()?.getParticipantById(part.id)
                 if (tmp != null && tmp.size == 1 && tmp[0].matches(part)) {
-                    break;
+                    break
                 }
             }
             try {

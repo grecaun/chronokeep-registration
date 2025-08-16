@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.chronokeep.registration"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.chronokeep.registration"
