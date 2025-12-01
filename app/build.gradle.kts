@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.chronokeep.registration"
         minSdk = 22
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 13
         versionName = "1.0.3"
 

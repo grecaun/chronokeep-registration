@@ -211,7 +211,7 @@ class FragmentEditParticipant(
         Log.d(tag, "Submit clicked.")
         val part = fromFields()
         if (participant.id.isEmpty()) {
-            if (participant.first.isNotEmpty() || participant.last.isNotEmpty()) {
+            if (part.first.isNotEmpty() || part.last.isNotEmpty()) {
                 Log.d(tag, "New participant: ${part.first} ${part.last}")
                 for (i in 1..4) {
                     Log.d(tag, "Attempt $i at adding new participant.")
